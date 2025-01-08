@@ -1,0 +1,13 @@
+.navContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.navContainerLeft {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	gap: 30px;
+	font-size: 20px;
+}
