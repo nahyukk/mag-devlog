@@ -1,7 +1,10 @@
 .nav {
+	position: fixed;
 	margin: 0;
-	width: 810px;
+	max-width: 810px;
+	width: 100%;
 	height: 80px;
+	background-color: var(--background-color);
 	border-bottom: 1px solid var(--primary-color);
 	font-family: var(--font-baloo);
 	font-weight: 600;
