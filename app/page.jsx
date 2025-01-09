@@ -1,6 +1,10 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 
+export const metadata = {
+  title: "Mag's TIL & Study",
+};
+
 export default function Home() {
   return (
     <div className={styles.mainBody}>

@@ -6,6 +6,7 @@
 	justify-content: flex-start;
 	max-width: 810px;
 	width: 100%;
+	height: calc(100vh - 80px);
 	background-color: var(--background-color);
 }
 
@@ -17,6 +18,12 @@
 	width: 100%;
 	padding: 0 10px;
 	gap: 50px;
+}
+
+@media (min-width: 810px) {
+	.mainContainer {
+		width: 810px;
+	}
 }
 
 .introduction {
