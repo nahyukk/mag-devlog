@@ -7,7 +7,7 @@
 	background-color: var(--background-color);
 	border-bottom: 1px solid var(--primary-color);
 	font-family: var(--font-baloo);
-	font-weight: 600;
+	font-weight: 500;
 	font-size: 20px;
 }
 
@@ -32,6 +32,11 @@
 
 .navItem a {
 	color: var(--main-text-color) !important;
+}
+
+.active {
+	text-decoration: underline; 
+	font-weight: 700;
 }
 
 .navHome {
