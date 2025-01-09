@@ -1,0 +1,58 @@
+.mainBody {
+	margin-top: 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+	max-width: 810px;
+	width: 100%;
+	background-color: var(--background-color);
+}
+
+.mainContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	width: 100%;
+	padding: 0 10px;
+	gap: 50px;
+}
+
+.introduction {
+	margin-top: 30px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 20px;
+	width: 100%;
+}
+
+.introLeft {
+	flex: 1;
+}
+
+.introLeft h1 {
+	color: var(--primary-color);
+	font-family: var(--font-baloo);
+	font-size: 45px;
+	font-weight: 700;
+	font-stretch: 200%;
+	-webkit-text-stroke: 1px var(--primary-color);
+}
+
+.introRight {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	width: 400px;
+	height: 160px;
+}
+
+.introMyself {
+	font-family: var(--font-baloo);
+	font-size: 20px;
+	line-height: 1.1;
+}
