@@ -1,6 +1,5 @@
 .mainBody {
 	margin-top: 80px;
-	margin-bottom: 100px;
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -75,21 +74,44 @@
 	border-bottom: 1px solid var(--primary-color);
 }
 
+.StudyCard {
+	height: 160px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 5px;
+	border-bottom: 1px solid var(--primary-color);
+}
+
 @media (min-width: 810px) {
-	.TILCard {
+	.TILCard, .StudyCard {
 		width: 800px;
 	}
 }
 
 .cardTitle {
-	font-size: 35px;
+	font-size: 30px;
 	font-family: var(--font-roboto-mono);
 	font-weight: bold;
 	letter-spacing: -0.05em;
 }
 
+.cardDetail {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
 .cardDescription {
-	font-size: 20px;
+	font-size: 18px;
+	font-family: var(--font-roboto-mono);
+	color: var(--sub-text-color);
+	letter-spacing: -0.05em;
+}
+
+.cardDate {
+	font-size: 14px;
 	font-family: var(--font-roboto-mono);
 	color: var(--sub-text-color);
 	letter-spacing: -0.05em;
