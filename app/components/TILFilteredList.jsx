@@ -3,45 +3,45 @@
 import React, { useState } from "react";
 import TILList from "./TILList";
 
-const Category = ({ categories, posts }) => {
+const TILFilteredList = ({ filters, posts }) => {
   const [filteredPosts, setFilteredPosts] = useState(posts);
-  const [selectedCategory, setSelctedCategory] = useState("All");
+  const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const handleCategoryClick = (category) => {
-    setSelctedCategory(category);
-    if (category === "All") {
+  const handleFilterClick = (filter) => {
+    setSelectedFilter(filter);
+    if (filter === "All") {
       setFilteredPosts(posts);
     } else {
-      setFilteredPosts(posts.filter((post) => post.category === category));
+      setFilteredPosts(posts.filter((post) => post.filter === filter));
     }
   };
 
   return (
     <div>
       <div style={{ display: "flex", gap: "10px" }}>
-        {categories.map((category) => (
+        {filters.map((filter) => (
           <button
-            key={category}
-            onClick={() => handleCategoryClick(category)}
+            key={filter}
+            onClick={() => handleFilterClick(filter)}
             style={{
               padding: "5px 10px",
               borderRadius: "15px",
               border: "1px solid var(--primary-color)",
               backgroundColor:
-                selectedCategory === category
+                selectedFilter === filter
                   ? "var(--primary-color)"
                   : "#ffffff",
               color:
-                selectedCategory === category
+                selectedFilter === filter
                   ? "#ffffff"
                   : "var(--main-text-color)",
-              fontWeight: selectedCategory === category ? "bold" : "400",
+              fontWeight: selectedFilter === filter ? "bold" : "400",
               cursor: "pointer",
               fontFamily: "var(--font-roboto-mono)",
               fontSize: "16px",
             }}
           >
-            {category}
+            {filter}
           </button>
         ))}
       </div>
@@ -50,4 +50,4 @@ const Category = ({ categories, posts }) => {
   );
 };
 
-export default Category;
+export default TILFilteredList;
