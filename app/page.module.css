@@ -17,7 +17,7 @@
 	justify-content: flex-start;
 	width: 100%;
 	padding: 0 10px;
-	gap: 50px;
+	gap: 10px;
 }
 
 @media (min-width: 810px) {
@@ -85,7 +85,8 @@
 }
 
 @media (min-width: 810px) {
-	.TILCard, .StudyCard {
+	.TILCard,
+	.StudyCard {
 		width: 800px;
 	}
 }
