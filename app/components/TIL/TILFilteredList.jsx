@@ -30,7 +30,7 @@ const TILFilteredList = ({ filters, posts }) => {
               backgroundColor:
                 selectedFilter === filter
                   ? "var(--primary-color)"
-                  : "#ffffff",
+                  : "transparent",
               color:
                 selectedFilter === filter
                   ? "#ffffff"
