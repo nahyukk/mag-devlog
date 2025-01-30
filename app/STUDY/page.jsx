@@ -26,7 +26,12 @@ const dummyPosts = [
 ];
 
 const Study = () => {
-	const filters = ["All", ...new Set(dummyPosts.flatMap((post) => post.filter))];
+	const filters = [
+		"All",
+		...[...new Set(dummyPosts.flatMap((post) => post.filter))].sort((a, b) =>
+			a.localeCompare(b)
+		),
+	];
 	
 	return (
 		<div className={styles.mainBody}>
