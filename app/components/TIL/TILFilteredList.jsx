@@ -18,7 +18,7 @@ const TILFilteredList = ({ filters, posts }) => {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div style={{ display: "flex", gap: "10px",  marginBottom: "10px", }}>
         {filters.map((filter) => (
           <button
             key={filter}
