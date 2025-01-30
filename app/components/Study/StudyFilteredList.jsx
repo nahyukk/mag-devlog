@@ -1,25 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StudyList from "./StudyList";
 
 const StudyFilteredList = ({ filters, posts }) => {
   const [filteredPosts, setFilteredPosts] = useState(posts);
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const getFilterIcon = (filter) =>
-    `/filtericons/${filter.toLowerCase()}-icon.svg`;
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const getFilterIcon = (filter) => {
+    const iconName = isDarkMode
+      ? `${filter.toLowerCase()}-white-icon.svg`
+      : `${filter.toLowerCase()}-icon.svg`;
+    return `/filtericons/${iconName}`;
+  };
 
   const applyFilters = (filter, term) => {
     let updatePosts = posts;
 
     if (filter !== "All") {
-      updatePosts = updatePosts.filter(
-        (post) => post,
-        filter,
-        includes(filter)
-      );
+      updatePosts = updatePosts.filter((post) => post, filter.includes(filter));
     }
     if (term) {
       updatePosts = updatePosts.filter(
@@ -33,11 +49,7 @@ const StudyFilteredList = ({ filters, posts }) => {
 
   const handleFilterClick = (filter) => {
     setSelectedFilter(filter);
-    if (filter === "All") {
-      setFilteredPosts(posts);
-    } else {
-      setFilteredPosts(posts.filter((post) => post.filter.includes(filter)));
-    }
+    applyFilters(filter, searchTerm);
   };
 
   const handleSearchChange = (e) => {
@@ -91,13 +103,13 @@ const StudyFilteredList = ({ filters, posts }) => {
               key={filter}
               onClick={() => handleFilterClick(filter)}
               style={{
-                padding: "5px 10px",
+                padding: "7px 12px",
                 borderRadius: "15px",
                 border: "1px solid var(--primary-color)",
                 backgroundColor:
                   selectedFilter === filter
                     ? "var(--primary-color)"
-                    : "#ffffff",
+                    : "transparent",
                 color:
                   selectedFilter === filter
                     ? "#ffffff"
@@ -123,7 +135,11 @@ const StudyFilteredList = ({ filters, posts }) => {
                     height={16}
                     style={{
                       verticalAlign: "middle",
-                      filter: selectedFilter === filter ? "invert(1)" : "none",
+                      filter: isDarkMode
+                        ? "none"
+                        : selectedFilter === filter
+                        ? "invert(1)"
+                        : "none",
                     }}
                   />
                 )}
