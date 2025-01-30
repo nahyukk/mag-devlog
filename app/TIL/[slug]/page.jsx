@@ -6,6 +6,10 @@ import { notFound } from "next/navigation";
 import styles from "../../page.module.css";
 import Post from "../../components/Post";
 
+export const metadata = {
+  title: "Mag's TIL",
+};
+
 const getTILPost = async (slug) => {
   const postPath = path.join(process.cwd(), "posts", "TIL", `${slug}.mdx`);
 
