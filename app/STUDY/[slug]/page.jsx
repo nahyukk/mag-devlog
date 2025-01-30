@@ -51,15 +51,7 @@ export default async function StudyPost({ params }) {
             <h2 className={styles.title} style={{ flexGrow: 1 }}>
               {post.title}
             </h2>
-            <p
-              className={styles.date}
-              style={{
-                color: "var(--sub-text-color",
-                fontFamily: "var(--font-roboto-mono)",
-              }}
-            >
-              {post.date}
-            </p>
+            <p className={styles.date}>{post.date}</p>
           </div>
           <h3 className={styles.description}>{post.description}</h3>
         </div>

@@ -154,3 +154,8 @@
 	font-family: var(--font-roboto-mono);
 	font-weight: lighter;
 }
+
+.date {
+	color: var(--sub-text-color);
+	font-family: var(--font-roboto-mono);
+}
