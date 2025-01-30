@@ -115,3 +115,25 @@ a {
 	text-decoration: none;
 }
 
+code {
+	font-family: 'Fira Code', monospace;
+	font-size: 0.95em;
+	background-color: #F4F1E6;
+	color: #4892D7;
+	padding: 2px 5px;
+	border-radius: 4px;
+}
+
+pre {
+  background-color: #2a2a2a; /* 코드 블록 배경색 */
+  color: #e0e0e0; /* 글자색 */
+  padding: 16px; /* 내부 여백 */
+  border-radius: 8px; /* 모서리 둥글게 */
+  overflow-x: auto; /* 가로 스크롤 가능 */
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  font-family: "Fira Code", monospace;
+}

@@ -39,29 +39,6 @@ const components = {
       {...props}
     />
   ),
-	code: (props) => (
-    <code
-      style={{
-        fontFamily: "'Fira Code', monospace",
-        fontSize: "0.95em",
-        backgroundColor: "#F4F1E6",
-        color: "#4892D7",
-        padding: "2px 5px",
-        borderRadius: "4px",
-				verticalAlign: "middle",
-				lineHeight: "1",
-      }}
-      {...props}
-    />
-  ),
-  pre: (props) => (
-    <pre
-      style={{
-        
-      }}
-      {...props}
-    />
-  ),
 };
 
 export default function Post({ content }) {

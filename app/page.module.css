@@ -133,9 +133,9 @@
 
 .title {
 	color: var(--primary-color);
-	font-size: 50px;
+	font-size: 45px;
 	font-family: var(--font-roboto-mono);
-	font-weight: 500;
+	font-weight: 600;
 	letter-spacing: -0.05em;
 }
 
