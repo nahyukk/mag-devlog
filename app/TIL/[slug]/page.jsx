@@ -7,7 +7,7 @@ import styles from "../../page.module.css";
 import Post from "../../components/Post";
 
 const getTILPost = async (slug) => {
-  const postPath = path.join(process.cwd(), "TILPosts", `${slug}.mdx`);
+  const postPath = path.join(process.cwd(), "Posts", "TIL", `${slug}.mdx`);
 
   if (!fs.existsSync(postPath)) {
     return null; // 파일이 없을 때 404 처리

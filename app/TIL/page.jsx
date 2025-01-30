@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 const getTILPosts = async () => {
-	const postsDirectory = path.join(process.cwd(), "TILPosts");
+	const postsDirectory = path.join(process.cwd(), "Posts", "TIL");
 	const filenames = fs.readdirSync(postsDirectory);
 
 	const posts = filenames.map((filename) => {
