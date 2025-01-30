@@ -11,27 +11,34 @@ export const metadata = {
 };
 
 const getTILPosts = async () => {
-	const postsDirectory = path.join(process.cwd(), "posts", "TIL");
-	const filenames = fs.readdirSync(postsDirectory);
+  const postsDirectory = path.join(process.cwd(), "posts", "TIL");
+  const filenames = fs.readdirSync(postsDirectory);
 
-	const posts = filenames.map((filename) => {
-		const filePath = path.join(postsDirectory, filename);
-		const fileContent = fs.readFileSync(filePath, "utf-8");
-		const { data } = matter(fileContent);
+  const posts = filenames.map((filename) => {
+    const filePath = path.join(postsDirectory, filename);
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const { data } = matter(fileContent);
 
-		return {
-			slug: filename.replace(".mdx", ""),
-			title: data.title,
-			description: data.description,
-			filter: data.filter || [],
-		}
-	})
-	return posts;
-}
+    return {
+      slug: filename.replace(".mdx", ""),
+      title: data.title,
+      description: data.description,
+      filter: data.filter || [],
+    };
+  });
+  return posts;
+};
 
 export default async function TIL() {
-	const posts = await getTILPosts();
-  const filters = ["All", ...new Set(posts.flatMap((post) => post.filter))];
+  const posts = await getTILPosts();
+  const filters = [
+    "All",
+    ...[...new Set(posts.flatMap((post) => post.filter))].sort((a, b) => {
+      const dateA = a.match(/\d{4}\.\d{2}/)?.[0] || "";
+      const dateB = b.match(/\d{4}\.\d{2}/)?.[0] || "";
+      return dateB.localeCompare(dateA);
+    }),
+  ];
 
   return (
     <div className={styles.mainBody}>
