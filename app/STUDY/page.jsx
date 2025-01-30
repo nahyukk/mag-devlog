@@ -7,7 +7,7 @@ import StudyFilteredList from "../components/Study/StudyFilteredList";
 import matter from "gray-matter";
 
 export const metadata = {
-  title: "Mag's TIL",
+  title: "Mag's Study",
 };
 
 const getStudyPosts = async () => {
