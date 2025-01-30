@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../page.module.css";
 import Header from "../components/Header";
-import StudyList from "../components/StudyList";
+import StudyList from "../components/Study/StudyList";
 
 export const metadata = {
   title: "Mag's TIL",
@@ -13,13 +13,13 @@ const dummyPosts = [
     title: "[JAVA 입문] 형변환",
     description:
       "자동 형변환 vs 명시적 형변환",
-		date: "2025.01.07"
+		date: "2025.01.07",
 	},
   {
     id: 2,
     title: "블로그 프로젝트 시작",
     description: "개인 블로그를 만드는 프로젝트 입니다.",
-		date: "2025.01.06"
+		date: "2025.01.06",
 	},
 ];
 
@@ -33,7 +33,7 @@ const Study = () => {
         />
         <div>검색</div>
 				<div>카테고리</div>
-				<StudyList posts={dummyPosts}/>
+				<StudyList posts={dummyPosts} />
       </div>
     </div>
 	)

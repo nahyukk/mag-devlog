@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../page.module.css";
 import Header from "../components/Header";
-import TILFilteredList from "../components/TILFilteredList";
+import TILFilteredList from "../components/TIL/TILFilteredList";
 
 export const metadata = {
   title: "Mag's TIL",
