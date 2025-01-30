@@ -87,6 +87,18 @@ a {
 	text-decoration: none;
 }
 
+input {
+  background-color: var(--background-color);
+  color: var(--main-text-color);
+}
+
+input:focus,
+input:active {
+  outline: none; 
+  border: 1px solid var(--primary-color);
+  box-shadow: none;
+}
+
 @media (prefers-color-scheme: dark) {
 	html {
 		color-scheme: dark;
