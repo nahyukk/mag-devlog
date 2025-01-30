@@ -22,12 +22,43 @@
 	padding: 0 10px;
 }
 
-.navContainerLeft,
-.navContainerRight {
+.navContainerLeft {
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
 	gap: 30px;
+}
+
+.navContainerRight {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 15px;
+}
+
+.navContainerRight div {
+  min-width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navContainerRight button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+
+.navContainerRight svg {
+  width: 24px;
+  height: 24px;
 }
 
 .navItem a {

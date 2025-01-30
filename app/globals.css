@@ -19,21 +19,6 @@
 	--link-color: #4FE6C2;
 }
 
-/* 임시 작업용 */
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background-color: #FAFAFA;
-		--main-text-color: #2A2A2A;
-		--sub-text-color: #4F7F73;
-		--primary-color: #36D2A1;
-		--secondary-color: #5FE0B8;
-		--light-primary-color: #B3F4E4;
-		--link-color: #1DBB8E;
-	}
-}
-
-/* end */
-
 /* 폰트 */
 :root {
 	--font-baloo: 'Baloo 2', cursive;
@@ -79,12 +64,6 @@ input:active {
   box-shadow: none;
 }
 
-@media (prefers-color-scheme: dark) {
-	html {
-		color-scheme: dark;
-	}
-}
-
 /* 포스트 */
 h1 {
 	color: var(--main-text-color);
@@ -125,11 +104,11 @@ code {
 }
 
 pre {
-  background-color: #2a2a2a; /* 코드 블록 배경색 */
-  color: #e0e0e0; /* 글자색 */
-  padding: 16px; /* 내부 여백 */
-  border-radius: 8px; /* 모서리 둥글게 */
-  overflow-x: auto; /* 가로 스크롤 가능 */
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
 }
 
 pre code {
