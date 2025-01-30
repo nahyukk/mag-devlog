@@ -7,6 +7,8 @@
 	--secondary-color: #5FE0B8;
 	--light-primary-color: #B3F4E4;
 	--link-color: #1DBB8E;
+	--code-background-color: #F4F1E6;
+	--code-text-color: #1079DB;
 }
 
 .dark {
@@ -17,6 +19,8 @@
 	--secondary-color: #5FE0B8;
 	--light-primary-color: #2F4944;
 	--link-color: #4FE6C2;
+	--code-background-color: #191919;
+	--code-text-color: #4892D7;
 }
 
 /* 폰트 */
@@ -53,15 +57,15 @@ body {
 }
 
 input {
-  background-color: var(--background-color);
-  color: var(--main-text-color);
+	background-color: var(--background-color);
+	color: var(--main-text-color);
 }
 
 input:focus,
 input:active {
-  outline: none; 
-  border: 1px solid var(--primary-color);
-  box-shadow: none;
+	outline: none;
+	border: 1px solid var(--primary-color);
+	box-shadow: none;
 }
 
 /* 포스트 */
@@ -97,22 +101,22 @@ a {
 code {
 	font-family: 'Fira Code', monospace;
 	font-size: 0.95em;
-	background-color: #F4F1E6;
-	color: #4892D7;
+	background-color: var(--code-background-color);
+	color: var(--code-text-color);
 	padding: 2px 5px;
 	border-radius: 4px;
 }
 
 pre {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  padding: 16px;
-  border-radius: 8px;
-  overflow-x: auto;
+	background-color: var(--code-background-color);
+	color: var(--main-text-color);
+	padding: 16px;
+	border-radius: 8px;
+	overflow-x: auto;
 }
 
 pre code {
-  background: none;
-  color: inherit;
-  font-family: "Fira Code", monospace;
+	background: none;
+	color: inherit;
+	font-family: "Fira Code", monospace;
 }
