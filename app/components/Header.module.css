@@ -10,6 +10,11 @@
 
 .title {
 	line-height: 1;
+	color: var(--primary-color);
+	font-family: var(--font-baloo);
+	font-size: 70px;
+	font-weight: 700;
+	-webkit-text-stroke: 1px var(--primary-color);
 }
 
 .description {

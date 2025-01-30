@@ -64,6 +64,13 @@
 	line-height: 1.1;
 }
 
+.recentPosts h2, .randomTIL h2 {
+	font-family: var(--font-baloo) !important;
+	font-size: 35px !important;
+	font-weight: 400 !important;
+	color: var(--primary-color) !important;
+}
+
 .TILCard {
 	height: 135px;
 	width: 100%;
@@ -96,6 +103,7 @@
 	font-family: var(--font-roboto-mono);
 	font-weight: bold;
 	letter-spacing: -0.05em;
+	color: var(--main-text-color);
 }
 
 .cardDetail {
@@ -116,4 +124,23 @@
 	font-family: var(--font-roboto-mono);
 	color: var(--sub-text-color);
 	letter-spacing: -0.05em;
+}
+
+.postHeader {
+	margin-top: 20px;	
+	margin-bottom: 15px;
+}
+
+.title {
+	color: var(--primary-color);
+	font-size: 50px;
+	font-family: var(--font-roboto-mono);
+	font-weight: 500;
+	letter-spacing: -0.05em;
+}
+
+.description {
+	font-size: 15px;
+	font-family: var(--font-roboto-mono);
+	font-weight: lighter;
 }
