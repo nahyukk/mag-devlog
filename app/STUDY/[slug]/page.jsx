@@ -36,9 +36,26 @@ export default async function StudyPost({ params }) {
     <div className={styles.mainBody}>
       <div className={styles.mainContainer}>
         <div className={styles.postHeader}>
-          <div>
-            <h2 className={styles.title}>{post.title}</h2>
-            <p className={styles.date}>{post.date}</p>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+            }}
+          >
+            <h2 className={styles.title} style={{ flexGrow: 1 }}>
+              {post.title}
+            </h2>
+            <p
+              className={styles.date}
+              style={{
+                color: "var(--sub-text-color",
+                fontFamily: "var(--font-roboto-mono)",
+              }}
+            >
+              {post.date}
+            </p>
           </div>
           <h3 className={styles.description}>{post.description}</h3>
         </div>

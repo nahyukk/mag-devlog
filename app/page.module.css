@@ -64,7 +64,8 @@
 	line-height: 1.1;
 }
 
-.recentPosts h2, .randomTIL h2 {
+.recentPosts h2,
+.randomTIL h2 {
 	font-family: var(--font-baloo) !important;
 	font-size: 35px !important;
 	font-weight: 400 !important;
@@ -92,6 +93,7 @@
 }
 
 @media (min-width: 810px) {
+
 	.TILCard,
 	.StudyCard {
 		width: 800px;
@@ -104,6 +106,13 @@
 	font-weight: bold;
 	letter-spacing: -0.05em;
 	color: var(--main-text-color);
+
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .cardDetail {
@@ -127,8 +136,9 @@
 }
 
 .postHeader {
-	margin-top: 20px;	
+	margin-top: 20px;
 	margin-bottom: 15px;
+	width: 100%;
 }
 
 .title {
