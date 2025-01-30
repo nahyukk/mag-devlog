@@ -12,7 +12,7 @@ const TILFilteredList = ({ filters, posts }) => {
     if (filter === "All") {
       setFilteredPosts(posts);
     } else {
-      setFilteredPosts(posts.filter((post) => post.filter.indludes(filter)));
+      setFilteredPosts(posts.filter((post) => post.filter === filter));
     }
   };
 

@@ -30,7 +30,7 @@ const dummyPosts = [
 ];
 
 const TIL = () => {
-  const filters = ["All", "❄️2025.01", "🎄2024.12"];
+  const filters = ["All", ...new Set(dummyPosts.flatMap((post) => post.filter))];
 
   return (
     <div className={styles.mainBody}>
