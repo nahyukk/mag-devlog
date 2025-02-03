@@ -15,21 +15,6 @@ const Navbar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem("theme");
-    if (savedMode === "dark") {
-      setIsDarkMode(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
-
-  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 639);
     handleResize();
     window.addEventListener("resize", handleResize);
