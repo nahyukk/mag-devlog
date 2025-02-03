@@ -16,7 +16,7 @@
 	align-items: flex-start;
 	justify-content: flex-start;
 	width: 100%;
-	padding: 0 10px;
+	padding: 0 15px;
 	gap: 10px;
 }
 
@@ -101,14 +101,14 @@
 @media (min-width: 810px) {
 	.TILCard,
 	.StudyCard {
-		width: 800px;
+		width: 780px;
 	}
 }
 
 @media (max-width: 809px) {
 	.TILCard,
 	.StudyCard {
-		width: 97.5vw;
+		width: calc(100vw - 30px);
 	}
 }
 
