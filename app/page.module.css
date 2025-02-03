@@ -26,6 +26,12 @@
 	}
 }
 
+@media (max-width: 809px) {
+	.mainContainer {
+		width: 100vw;
+	}
+}
+
 .introduction {
 	margin-top: 30px;
 	display: flex;
@@ -93,10 +99,16 @@
 }
 
 @media (min-width: 810px) {
-
 	.TILCard,
 	.StudyCard {
 		width: 800px;
+	}
+}
+
+@media (max-width: 809px) {
+	.TILCard,
+	.StudyCard {
+		width: 97.5vw;
 	}
 }
 
