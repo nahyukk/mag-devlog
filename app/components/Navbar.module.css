@@ -89,3 +89,26 @@
 	height: 100%;
 	object-fit: cover;
 }
+
+/* 모바일 크기 */
+.mobileMenu {
+	position: absolute;
+	top: 80px;
+	left: 0;
+	right: 0;
+	height: calc(100vh - 80px);
+	background-color: var(--background-color);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 25px;
+	padding: 20px 0;
+	transition: transform 0.3s ease-in-out;
+	z-index: 1000;
+}
+
+.mobileMenu a {
+	color: var(--main-text-color);
+	text-decoration: none;
+	font-size: 20px;
+}

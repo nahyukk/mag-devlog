@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-export default function DarkMode() {
+export default function DarkMode({ onToggle }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -8,24 +8,20 @@ export default function DarkMode() {
     if (savedMode === "dark") {
       document.documentElement.classList.add("dark");
       setIsDarkMode(true);
+      onToggle(true);
     }
   }, []);
 
   const toggleDarkMode = () => {
     const newMode = isDarkMode ? "light" : "dark";
-    if (newMode === "dark") {
-			document.documentElement.classList.add("dark");
-		} else {
-			document.documentElement.classList.remove("dark");
-		}
+    document.documentElement.classList.toggle("dark", newMode === "dark");
 
     localStorage.setItem("theme", newMode);
     setIsDarkMode(!isDarkMode);
+    onToggle(!isDarkMode);
   };
   return (
-    <button
-      onClick={toggleDarkMode}
-    >
+    <button onClick={toggleDarkMode}>
       <svg
         width="48"
         height="48"
