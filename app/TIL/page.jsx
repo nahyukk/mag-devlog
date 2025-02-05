@@ -26,7 +26,12 @@ const getTILPosts = async () => {
       filter: data.filter || [],
     };
   });
-  return posts;
+  return posts.sort((a, b) => {
+    const dateA = a.title.match(/\d{6}/)?.[0] || "000000";
+    const dateB = b.title.match(/\d{6}/)?.[0] || "000000";
+
+    return dateB.localeCompare(dateA);
+  });
 };
 
 export default async function TIL() {

@@ -27,7 +27,12 @@ const getStudyPosts = async () => {
       filter: data.filter || [],
     };
   });
-  return posts;
+  return posts.sort((a, b) => {
+    const dateA = a.date;
+    const dateB = b.date;
+
+    return dateB.localeCompare(dateA);
+  });
 };
 
 export default async function Study() {
