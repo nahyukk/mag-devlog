@@ -39,6 +39,7 @@
 	justify-content: space-between;
 	gap: 20px;
 	width: 100%;
+	margin-bottom: 30px;
 }
 
 .introLeft {
@@ -60,7 +61,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 5px;
-	width: 400px;
+	width: 350px;
 	height: 160px;
 }
 
@@ -68,6 +69,10 @@
 	font-family: var(--font-baloo);
 	font-size: 20px;
 	line-height: 1.1;
+}
+
+.recentPosts {
+	margin-bottom: 50px;
 }
 
 .recentPosts h2,
