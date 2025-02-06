@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "./page.module.css";
 import StudyList from "./components/Study/StudyList";
 import path from "path";
@@ -11,22 +10,22 @@ export const metadata = {
 };
 
 const getTILPosts = async () => {
-	const postsDirectory = path.join(process.cwd(), "posts", "TIL");
-	const filenames = fs.readdirSync(postsDirectory);
+  const postsDirectory = path.join(process.cwd(), "posts", "TIL");
+  const filenames = fs.readdirSync(postsDirectory);
 
-	const posts = filenames.map((filename) => {
-		const filePath = path.join(postsDirectory, filename);
-		const fileContent = fs.readFileSync(filePath, "utf-8");
-		const { data } = matter(fileContent);
+  const posts = filenames.map((filename) => {
+    const filePath = path.join(postsDirectory, filename);
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const { data } = matter(fileContent);
 
-		return {
-			slug: filename.replace(".mdx", ""),
-			title: data.title,
-			description: data.description,
-			filter: data.filter || [],
-		};
-	});
-	return posts;
+    return {
+      slug: filename.replace(".mdx", ""),
+      title: data.title,
+      description: data.description,
+      filter: data.filter || [],
+    };
+  });
+  return posts;
 };
 
 const getStudyPosts = async () => {
@@ -51,13 +50,13 @@ const getStudyPosts = async () => {
 };
 
 export default async function Home() {
-	const posts = await getStudyPosts();
-	const latestPosts = posts
-	.sort((a, b) => new Date(b.date) - new Date(a.date))
-	.slice(0, 5);
+  const posts = await getStudyPosts();
+  const latestPosts = posts
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
 
-	const tils = await getTILPosts();
-	const randomTils = tils.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const tils = await getTILPosts();
+  const randomTils = tils.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   return (
     <div className={styles.mainBody}>
@@ -65,7 +64,7 @@ export default async function Home() {
         <div className={styles.introduction}>
           <div className={styles.introLeft}>
             <h1>Mag's TIL & Study</h1>
-						<p className={styles.introMyself}>
+            <p className={styles.introMyself}>
               <br />
               매일 조금씩 전진하는 개발자 Mag 입니다. <br />
               <br />
@@ -73,7 +72,6 @@ export default async function Home() {
             </p>
           </div>
           <div className={styles.introRight}>
-
             {/* <Image
               src="/keyboard-c.svg"
               alt="compKeyboard"
@@ -91,11 +89,11 @@ export default async function Home() {
         </div>
         <div className={styles.recentPosts}>
           <h2>Recent Posts</h2>
-					<StudyList posts={latestPosts} />
+          <StudyList posts={latestPosts} />
         </div>
         <div className={styles.randomTIL}>
           <h2>Random TIL</h2>
-					<TILList posts={randomTils} />
+          <TILList posts={randomTils} />
         </div>
       </div>
     </div>
