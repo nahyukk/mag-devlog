@@ -1,5 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "@/styles/highlight.js/atelier-estuary.min.css";
 
 const components = {
   ul: (props) => (
@@ -36,7 +38,7 @@ const components = {
 const options = {
   mdxOptions: {
     remarkPlugins: [remarkGfm],
-    rehypePlugins: [],
+    rehypePlugins: [rehypeHighlight],
   },
 };
 
