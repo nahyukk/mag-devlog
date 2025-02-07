@@ -1,16 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 
 const components = {
-	p: (props) => (
-    <p
-      style={{
-        fontSize: "1rem",
-        lineHeight: "1.6",
-        marginBottom: "1rem",
-      }}
-      {...props}
-    />
-  ),
   ul: (props) => (
     <ul
       style={{
@@ -35,12 +26,22 @@ const components = {
     <li
       style={{
         lineHeight: "1.5",
+        margin: "0.7rem 0",
       }}
       {...props}
     />
   ),
 };
 
+const options = {
+  mdxOptions: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [],
+  },
+};
+
 export default function Post({ content }) {
-  return <MDXRemote source={content} components={components}/>;
+  return (
+    <MDXRemote source={content} components={components} options={options} />
+  );
 }
