@@ -1,31 +1,11 @@
 import React from "react";
-import path from "path";
-import fs from "fs";
-import matter from "gray-matter";
 import { notFound } from "next/navigation";
 import styles from "../../page.module.css";
 import Post from "../../components/Post";
+import getStudyPost from "../../../lib/getStudyPost";
 
 export const metadata = {
   title: "Mag's Study",
-};
-
-const getStudyPost = async (slug) => {
-  const postPath = path.join(process.cwd(), "posts", "Study", `${slug}.mdx`);
-
-  if (!fs.existsSync(postPath)) {
-    return null; // 파일이 없을 때 404 처리
-  }
-
-  const fileContent = fs.readFileSync(postPath, "utf-8");
-  const { content, data } = matter(fileContent);
-
-  return {
-    title: data.title,
-    description: data.description,
-    date: data.date,
-    content,
-  };
 };
 
 export default async function StudyPost({ params }) {
