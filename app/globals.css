@@ -7,7 +7,7 @@
 	--secondary-color: #5FE0B8;
 	--light-primary-color: #B3F4E4;
 	--link-color: #1DBB8E;
-	--code-background-color: #F4F1E6;
+	--code-background-color: #f4f3ec;
 	--code-text-color: #1079DB;
 	--aside-background-color: #F1FAEF;
 	--o-background-color: #2A2A2A;
@@ -24,7 +24,7 @@
 	--secondary-color: #5FE0B8;
 	--light-primary-color: #2F4944;
 	--link-color: #4FE6C2;
-	--code-background-color: #191919;
+	--code-background-color: #22221b;
 	--code-text-color: #4892D7;
 	--aside-background-color: #273329;
 	--o-background-color: #FAFAFA;
@@ -133,11 +133,6 @@ pre {
 	background-color: var(--code-background-color);
 	padding: 16px;
 	border-radius: 8px;
-}
-
-pre code {
-	background: none;
-	font-family: "Fira Code", monospace;
 }
 
 aside {
