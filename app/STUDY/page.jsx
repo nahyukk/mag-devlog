@@ -19,20 +19,26 @@ const getStudyPosts = async () => {
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const { data } = matter(fileContent);
 
+    let latestDate;
+
+    if (data.date.includes(" ~ ")) {
+      const [startDate, endDate] = data.date
+        .split(" ~ ")
+        .map((date) => new Date(date));
+      latestDate = endDate;
+    } else {
+      latestDate = new Date(data.date);
+    }
     return {
       slug: filename.replace(".mdx", ""),
       title: data.title,
       description: data.description,
       date: data.date,
+      latestDate,
       filter: data.filter || [],
     };
   });
-  return posts.sort((a, b) => {
-    const dateA = a.date;
-    const dateB = b.date;
-
-    return dateB.localeCompare(dateA);
-  });
+  return posts.sort((a, b) => b.latestDate - a.latestDate);
 };
 
 export default async function Study() {
