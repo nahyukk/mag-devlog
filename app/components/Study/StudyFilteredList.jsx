@@ -98,7 +98,7 @@ const StudyFilteredList = ({ filters, posts }) => {
                   gap: "3px",
                 }}
               >
-                {!["All", "Project"].includes(filter) && (
+                {!["All", "Project", "CS"].includes(filter) && (
                   <img
                     src={getFilterIcon(filter)}
                     alt={`${filter} icon`}
