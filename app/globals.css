@@ -90,7 +90,7 @@ h2 {
 	color: var(--main-text-color);
 	font-size: 30px;
 	font-weight: 700;
-	margin-top: 10px;
+	margin-top: 15px;
 }
 
 h3 {
@@ -115,6 +115,13 @@ a {
 p {
 	font-size: 1remp;
 	line-height: 1.6;
+}
+
+img {
+		max-width: 100%;
+		height: auto;
+		display: block;
+		margin: 0 auto;
 }
 
 code {
