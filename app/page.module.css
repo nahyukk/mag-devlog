@@ -244,6 +244,9 @@
 	box-shadow: none;
 	border: none;
 	cursor: pointer;
+	display: inline-block;
+	min-width: 20px;
+	min-height: 20px;
 }
 
 .copySuccess {
