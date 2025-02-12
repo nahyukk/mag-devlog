@@ -28,16 +28,9 @@ const Footer = () => {
     return () => observer.disconnect();
   }, []);
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-  const copyIcon = isDarkMode
-    ? `${basePath}/copy-icon.svg`
-    : `${basePath}/copy-white-icon.svg`;
-  const emailIcon = isDarkMode
-    ? `${basePath}/email-white-icon.svg`
-    : `${basePath}/email-icon.svg`;
-  const githubIcon = isDarkMode
-    ? `${basePath}/github-white-icon.svg`
-    : `${basePath}/github-icon.svg`;
+  const copyIcon = isDarkMode ? "/copy-icon.svg" : "/copy-white-icon.svg";
+  const emailIcon = isDarkMode ? "/email-white-icon.svg" : "/email-icon.svg";
+  const githubIcon = isDarkMode ? "/github-white-icon.svg" : "/github-icon.svg";
 
   const email = "knahyuk@gmail.com";
 

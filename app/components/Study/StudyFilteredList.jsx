@@ -24,13 +24,11 @@ const StudyFilteredList = ({ filters, posts }) => {
     return () => observer.disconnect();
   }, []);
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
   const getFilterIcon = (filter) => {
     const iconName = isDarkMode
       ? `${filter.toLowerCase()}-white-icon.svg`
       : `${filter.toLowerCase()}-icon.svg`;
-    return `${basePath}/filtericons/${iconName}`;
+    return `/filtericons/${iconName}`;
   };
 
   const applyFilters = (filter, term) => {
