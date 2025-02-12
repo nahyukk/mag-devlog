@@ -35,10 +35,15 @@ const getStudyPosts = async () => {
       description: data.description,
       date: data.date,
       latestDate,
+      order: typeof data.order === "number" ? data.order : 0,
       filter: data.filter || [],
     };
   });
-  return posts.sort((a, b) => b.latestDate - a.latestDate);
+  return posts.sort((a, b) => {
+    const dateComparison = new Date(b.latestDate) - new Date(a.latestDate);
+    if (dateComparison !== 0) return dateComparison;
+    return b.order - a.order;
+  });
 };
 
 export default async function Study() {

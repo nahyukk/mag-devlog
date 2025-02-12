@@ -16,6 +16,7 @@ const getStudyPost = async (slug) => {
     title: data.title,
     description: data.description,
     date: data.date,
+    order: typeof data.order === "number" ? data.order : 0,
     content,
   };
 };
