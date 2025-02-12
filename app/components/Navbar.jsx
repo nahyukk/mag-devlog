@@ -51,7 +51,7 @@ const Navbar = () => {
                   STUDY
                 </Link>
               </div>
-              <div className={styles.navItem}>
+              {/* <div className={styles.navItem}>
                 <Link
                   href="/Projects"
                   className={`${
@@ -60,7 +60,7 @@ const Navbar = () => {
                 >
                   PROJECTS
                 </Link>
-              </div>
+              </div> */}
             </>
           )}
         </div>
