@@ -1,0 +1,114 @@
+.nav {
+	position: fixed;
+	z-index: 1000;
+	margin: 0;
+	max-width: 810px;
+	width: 100%;
+	height: 80px;
+	background-color: var(--background-color);
+	border-bottom: 1px solid var(--primary-color);
+	font-family: var(--font-baloo);
+	font-weight: 500;
+	font-size: 20px;
+}
+
+.navContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	height: 46px;
+	margin-top: 25px;
+	margin-bottom: 10px;
+	padding: 0 10px;
+}
+
+.navContainerLeft {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	gap: 30px;
+	padding-left: 5px;
+}
+
+.navContainerRight {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 15px;
+}
+
+.navContainerRight div {
+	min-width: 45px;
+	height: 45px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.navContainerRight button {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+
+.navContainerRight svg {
+	width: 24px;
+	height: 24px;
+}
+
+.navItem a {
+	color: var(--main-text-color) !important;
+}
+
+.active {
+	text-decoration: underline;
+	font-weight: 700;
+}
+
+.navHome {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.navHome a {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+}
+
+.navHome img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* 모바일 크기 */
+.mobileMenu {
+	position: absolute;
+	top: 80px;
+	left: 0;
+	right: 0;
+	height: calc(100vh - 80px);
+	background-color: var(--background-color);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 25px;
+	padding: 20px 0;
+	transition: transform 0.3s ease-in-out;
+	z-index: 1000;
+}
+
+.mobileMenu a {
+	color: var(--main-text-color);
+	text-decoration: none;
+	font-size: 20px;
+}

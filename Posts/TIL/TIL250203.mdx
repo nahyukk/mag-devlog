@@ -1,0 +1,919 @@
+---
+title: "TIL 250203"
+description: "스프링 강의(객체지향 원리 적용, 스프링 컨테이너, 스프링 빈), CS-빠른 CPU를 위한 설계 기법, 프로젝트 - 요구사항 정리 및 ERD 작성"
+filter: "🧣2025.02"
+---
+
+# What I did
+
+스프링 강의 듣기 - 객체 지향 원리 적용, 스프링 컨테이너와 스프링 빈, 
+
+CS - 빠른 CPU를 위한 설계 기법
+
+프로젝트 - 요구사항 정리 및 ERD 작성
+
+# 배운점
+
+## 스프링 강의
+
+## 새로운 할인 정책 적용과 문제점
+
+- 할인 정책을 어플리케이션에 적용
+    - OrderServiceImpl 코드에서 FixDiscount → RateDiscount 로 변경
+        
+        ```jsx
+        public class OrderServiceImpl implements OrderService{
+        
+            private final MemberRepository memberRepository = new MemoryMemberRepository();
+        //    private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
+            private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
+        ```
+        
+- 문제점 발견
+    - 역할과 구현을 충실하게 분리
+    - 다형성 활용, 인터페이스와 구현 객체 분리
+    - OCP, DIP 객체지향 설계 원칙 준수? - 그렇게 보이지만 아니다 ㅠㅠ
+    - DIP → 주문 서비스 클라이언트(`OrderServiceImpl`)가 추상에 의존하고 있다. 근데 구현에도 의존하고 있음.
+        
+        ```java
+        //    private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
+            private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
+        ```
+        
+        - 추상(인터페이스) `DiscountPolicy`
+        - 구체(구현) `FixDiscountPolicy`, `RateDiscountPolicy`
+        - **DIP 위반**
+    - OCP
+        - `FixDiscountPolicy` 를 `RateDiscountPolicy` 로 바꾸는 순간 `OrderServiceImpl` 코드를 변경해야 한다.
+        - **OCP 위반**
+
+⇒ 인터페이스에만 의존하도록 코드 변경
+
+```jsx
+private DiscountPolicy discountPolicy;
+```
+
+이대로 test를 돌려보면 NullPointerException 이 터진다.
+
+- 테스트 코드에서 discountPolicy 부분에 아무 값이 할당 되지 않아서 Null이 된 것.
+
+```java
+int discountPrice = discountPolicy.discount(member, itemPrice);
+```
+
+## 관심사의 분리
+
+- OrderServiceImlp는 오더 서비스에 대한 로직만 신경써야 하는데 나는 FixDiscountPolicy로 해야해 하고 직접 객체를 생성하고 구체적인 선택도 하게 되어버린 것 → **관심사를 확실하게 분리 해야 한다.**
+
+```java
+private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
+```
+
+### AppConfig
+
+- 애플리케이션의 전체 동작 방식을 구성(config, 또는 설정)하기 위해서, **구현 객체를 생성**하고 **연결**할 수 있도록 하는 책임을 가진 별도의 `설정 클래스`
+- 애플리케이션의 환경 설정을 다 하는 클래스
+- 실제 동작에 필요한 **구현 객체를 생성**
+    - `MemberServiceImlp`
+    - `MemoryMemberRepository`
+    - `OrderServiceImpl`
+    - `FixDiscountPolicy`
+- 생성한 객체 인스턴스의 참조(레퍼런스)를 **생성자를 통해서 주입(연결)**
+    - `MemberServiceImlp` → `MemoryMemberRepository`
+    - `OrderServiceImpl` → `MemoryMemberRepository` , `FixDiscountPolicy`
+
+**`MemberServiceImlp`** 수정
+
+- memberRepository 관심사를 분리 함.
+
+```java
+private final MemberRepository memberRepository;
+
+public MemberServiceImlp(MemberRepository memberRepository) {
+    this.memberRepository = memberRepository;
+}
+    ...
+```
+
+**`hello.core / AppConfig.class`**
+
+- `MemoryMemberRepository()`가 생성자를 통해서 들어가게 함 → 생성자 주입
+
+```java
+public class AppConfig {
+
+    public MemberService memberService() {
+        return new MemberServiceImlp(new MemoryMemberRepository());
+    }
+
+}
+```
+
+**`OrderServiceImlp`** 도 똑같이 수정
+
+```java
+private MemberRepository memberRepository;
+private DiscountPolicy discountPolicy;
+
+public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
+    this.memberRepository = memberRepository;
+    this.discountPolicy = discountPolicy;
+}
+```
+
+**`hello.core / AppConfig.class`**
+
+- 생성자 주입: `MemoryMemberRepository()`, `FixDiscountPolicy()`
+
+```java
+public OrderService orderService() {
+    return new OrderServiceImpl(new MemoryMemberRepository(), new FixDiscountPolicy());
+}
+```
+
+→ DIP를 잘 지키게 된다.
+
+- `MemberServiceImpl`의 생성자를 통해서 어떤 구현 객체를 주입할지는 오직 외부(`AppConfig` )에서 결정
+- `MemberServiceImpl` 는 의존관계 고민은 하지 않고, 실행에만 집중
+
+<aside>
+💡
+
+```java
+public MemberService memberService() {
+    return new MemberServiceImlp(new MemoryMemberRepository());
+}
+```
+
+- memberService()는 메서드
+- MemberServiceImlp 객체를 만들어서
+- MemoryMemberRepository 객체를 생성자 의존관계 주입으로 전달
+- 리턴 → 새로 생성한 MemberServiceImlp 객체를 반환
+</aside>
+
+### AppConfig 실행
+
+**`MemberApp`**
+
+**변경 전**
+
+```java
+public class MemberApp {
+    public static void main(String[] args) {
+        MemberService memberService = new MemberServiceImlp();
+        Member member = new Member(1L, "memberA", Grade.VIP);
+        memberService.join(member);
+
+        Member findMember = memberService.findMember(1L);
+        System.out.println("new member = " + member.getName());
+        System.out.println("findMember = " + member.getName());
+    }
+}
+```
+
+**변경 후**
+
+```java
+        AppConfig appConfig = new AppConfig();
+        MemberService memberService = appConfig.memberService();
+        Member member = new Member(1L, "memberA", Grade.VIP);
+        memberService.join(member);
+```
+
+`OrderApp` 도 수정
+
+```java
+AppConfig appConfig = new AppConfig();
+MemberService memberService = appConfig.memberService();
+OrderService orderService = appConfig.orderService();
+```
+
+⇒ 인터페이스에만 의존하게 됨.
+
+Test 코드도 수정
+
+- `MemberServiceTest` 에서 이 부분이 오류가 나고 있음
+    
+    ```java
+    MemberService memberService = new MemberServiceImlp();
+    ```
+    
+    ```java
+    MemberService memberService;
+    
+    @BeforeEach
+    public void beforeEach() {
+        AppConfig appConfig = new AppConfig();
+        memberService = appConfig.memberService();
+    }
+    ```
+    
+
+- OrderServiceTest 동일
+    
+    ```java
+    		MemberService memberService = new MemberServiceImlp();
+    		OrderService orderService = new OrderServiceImpl();
+    ```
+    
+    ```java
+        MemberService memberService;
+        OrderService orderService;
+    
+        @BeforeEach
+        public void beforeEach() {
+            AppConfig appConfig = new AppConfig();
+            memberService = appConfig.memberService();
+            orderService = appConfig.orderService();
+        }
+    ```
+    
+
+### 정리
+
+- `AppConfig`를 통해 관심사를 확실하게 분리
+    - 애플리케이션이 어떻게 동작해야 할지 전체 구성을 책임
+- 각 구체(`imlp`들)는 기능을 실행하는 책임만 지면 된다.
+    - 구현 객체에 new가 없다는 뜻.
+
+## AppConfig 리팩토링
+
+- 현재 **중복**이 있고, **역할**에 따른 **구현**이 잘 안보인다.
+
+![image.png](attachment:14c296b4-46ff-4e4f-be2a-592c45a15c70:image.png)
+
+- 코드에서 이 그림이 잘 보여야 함.
+
+**수정 전**
+
+```java
+public class AppConfig {
+
+    public MemberService memberService() {
+        return new MemberServiceImlp(new MemoryMemberRepository());
+    }
+
+    public OrderService orderService() {
+        return new OrderServiceImpl(new MemoryMemberRepository(), new FixDiscountPolicy());
+    }
+
+}
+```
+
+cmd + opt + M
+
+**new MemoryMemberRepository()** → 
+
+![image.png](attachment:880a4f00-5df1-4a16-8638-cd612263a21e:image.png)
+
+more options 하면 창 뜬다.
+
+![image.png](attachment:be481af7-55ce-454c-9ae3-6744dd26d5e1:image.png)
+
+- return type, name 수정
+
+→ 리팩토링 기능 써도 되고 직접 작성 해도 된다.
+
+**최종 변경 후**
+
+```java
+    public MemberService memberService() {
+        return new MemberServiceImlp(memberRepository());
+    }
+
+    public MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+
+    public OrderService orderService() {
+        return new OrderServiceImpl(memberRepository(), discountPolicy());
+    }
+    
+    public DiscountPolicy discountPolicy() {
+        return new FixDiscountPolicy();
+    }
+```
+
+- 역할과 역할에 대한 구현이 어떻게 되는지 한 눈에 들어올 수 있도록 작성
+
+## 새로운 구조와 할인 정책 적용
+
+- 드디어 정액할인 정책 → 정률 할인 정책으로 변경
+
+![image.png](attachment:9847cf4d-75a1-4152-b39c-bbc2467b81dc:image.png)
+
+```java
+    public DiscountPolicy discountPolicy() {
+//        return new FixDiscountPolicy();
+        return new RateDiscountPolicy();
+    }
+```
+
+- 변경이 아주 간단해졌다.
+- 사용 영역에 있는 부분은 전혀 손 댈 필요가 없어졌다.
+
+⇒ OCP, DIP 다 만족
+
+## 전체 흐름 정리
+
+### 새로운 할인 정책 개발
+
+- 다형성 덕분에 rate discount policy를 개발하는 것 자체는 문제가 없었음.
+
+### 적용과 문제점
+
+- 적용하려고 하니 **클라이언트 코드**(주문 서비스 구현체)도 함께 변경해야함
+    - 주문 서비스 클라이언트가 인터페이스(DiscountPolicy)뿐 아니라, 구체 클래스(FixDiscountPolicy)도 함께 의존 → **DIP 위반**
+
+### 관심사 분리
+
+- 기존에는 클라이언트가 의존하는 서버 구현 객체를 직접 **생성**하고 **실행**
+- AppConfig를 만들어 애플리케이션의 전체 동작 방식을 구성하기 위해, **구현 객체를 생성**, **연결**하는 책임을 줌.
+- 클라이언트 객체는 자신의 역할인 **실행**하는 것에만 집중
+
+### AppConfig 리팩토링
+
+- 구성 정보에서 역할과 구현을 명확하게 분리
+- 중복 제거
+
+### 새로운 구조와 할인 정책 적용
+
+- AppConfig가 있는 구성 영역만 변경하면 됨.
+- 사용 영역인 클라이언트 코드는 변경하지 않음.
+
+## 좋은 객체 지향 설계 5가지 원칙 적용
+
+중 3가지 적용
+
+### SRP 단일 책임 원칙 - 한 클래스는 하나의 책임만 가져야 한다.
+
+- 관심사를 분리
+- 구현 객체를 생성하고 연결하는 책임은 AppConfig가 담당
+- 클라이언트 객체는 실행하는 책임만 담당
+
+### DIP 의존관계 역전 원칙 - 추상화에 의존, 구체화에 의존하면 안된다. (의존성 주입!)
+
+- 클라이언트 코드가 DiscountPolicy(추상화 인터페이스)에만 의존하도록 코드를 변경
+- AppConfig가 FixDiscountPolicy 객체 인스턴스를 클라이언트 코드 대신 생성해서 클라이언트 코드에 의존관계를 주입
+
+### OCP - 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있다.
+
+- 다형성을 사용하고 클라이언트가 DIP를 지켜야 함.
+- 애플리케이션을 사용영역과 구정 영역으로 나눔
+- AppConfig 의존관계를 Fix → Rate로 변경해서 클라이언트 코드에 주입하므로 클라이언트 코드는 변경하지 않음.
+
+## IoC, DI, **그리고 컨테이너**
+
+### 제어의 역전(IoC)
+
+- 프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것.
+- AppConfig가 등장한 이후에 구현 객체는 자신의 로직을 실행하는 역할만 담당. 프로그램의 제어 흐름은 AppConfig가 담당. 예를 들어서 `OrderServiceImpl` 은 필요한 인터페이스들을 호출하지만 어떤 구현 객체들이 실행될지 모름.
+
+**프레임워크 vs 라이브러리**
+
+- 프레임워크는 작성한 코드를 제어해주고, 대신 실행해 줌. (JUnit)
+- 라이브러리는 내가 작성한 코드가 직접 제어의 흐름을 담당
+
+### **의존관계 주입** DI(Dependency Injection)
+
+- `OrderServiceImpl` 은 `DiscountPolicy` 인터페이스에 의존한다. 실제 어떤 구현 객체가 사용될지는 모름.
+- **정적인 클래스 의존 관계**
+    - 클래스가 사용하는 import 코드만 보고 쉽게 판단 가능(실행하지 않아도 분석 가능)
+    - 구체가 어떤 인터페이스에 의존하는 지 알 수 있지만 어떤 객체가 주입 되는지는 알 수 없음.
+    
+    ![클래스 다이어그램](attachment:c9a241e6-9580-44f6-a319-691a7d2999f1:image.png)
+    
+    클래스 다이어그램
+    
+
+→ 화살표가 화살표 방향으로 뭔가를 의존하고 있다는 의미
+
+- 실행 시점에 결정되는 **동적인 객체(인스턴스) 의존 관계**
+    
+    ![객체 다이어그램](attachment:eb7e9eb6-77a2-43dc-82a8-a4e0aa9815af:image.png)
+    
+    객체 다이어그램
+    
+    - 실행 시점(런타임) 에서 외부에서 실제 구현 객체를 생성하고 클라이언트에 전달, 클라이언트와 서버의 실제 의존관계가 연결되는 것 ← 의존관계 주입
+    - 의존관계 주입을 사용하면 클라이언트 코드를 변경하지 않고, 클라이언트가 호출하는 대상의 타입 인스턴스를 변경할 수 있다.
+    - 의존관계 주입을 사용하면 정적인 클래스 의존관계를 변경하지 않고, 동적인 객체 인스턴스 의존관계를 쉽게 변경할 수 있다.
+
+### ~~IoC **컨테이너(잘 안씀)**,~~ DI **컨테이너**
+
+- AppConfig 처럼 객체를 생성하고 관리하면서 의존관계를 연결해주는 것
+- 의존관계 주입에 초점이 맞춰서 최근에는 DI 컨테이너라 함.
+- 어셈블러 라고도 함.
+
+## 스프링으로 전환
+
+`AppConfig`를 스프링 기반으로 변경
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public MemberService memberService() {
+        return new MemberServiceImlp(memberRepository());
+    }
+    @Bean
+    public MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+    @Bean
+    public OrderService orderService() {
+        return new OrderServiceImpl(memberRepository(), discountPolicy());
+    }
+    @Bean
+    public DiscountPolicy discountPolicy() {
+//        return new FixDiscountPolicy();
+        return new RateDiscountPolicy();
+    }
+
+}
+```
+
+`MemberApp`
+
+```java
+ public static void main(String[] args) {
+//        AppConfig appConfig = new AppConfig();
+//        MemberService memberService = appConfig.memberService();
+
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+        MemberService memberService = applicationContext.getBean("memberService", MemberService.class);
+```
+
+`OrderApp`
+
+```java
+public static void main(String[] args) {
+//        AppConfig appConfig = new AppConfig();
+//        MemberService memberService = appConfig.memberService();
+//        OrderService orderService = appConfig.orderService();
+
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+        MemberService memberService = applicationContext.getBean("memberService", MemberService.class);
+        OrderService orderService = applicationContext.getBean("orderService", OrderService.class);
+
+```
+
+- `@Configuration` : 구성 정보를 담당한다는 뜻
+- `@Bean` : 메서드를 호출해서 반환된 객체를 스프링 컨테이너에 등록, 스프링 컨테이너에 등록된 객체를 스프링 빈이라고 함.
+- `@Bean` 이 붙은 메서드 명을 스프링 빈의 이름으로 사용 (`memberService`, `orderService`)
+
+- `ApplicationContext` = 스프링 컨테이너
+- `AppConfig`에서 직접 객체를 생성하고 DI 했지만 스프링 컨테이너를 통해서 사용
+- 이전에는 `AppConfig`를 사용해서 직접 조회를 했어야 했지만, 스프링 컨테이너를 통해서 필요한 스프링 빈(객체)를 찾아서 사용해야 한다.
+    - `applicationContext.getBean(이름, 타입)`
+
+- 코드가 복잡해졌는데… 어떤 장점이 있지?
+
+### 스프링 컨테이너와 스프링 빈
+
+## 스프링 컨테이너 생성
+
+```java
+ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+```
+
+- `ApplicationContext`를 스프링 컨테이너라 한다.
+- `ApplicationContext`는 인터페이스이다.
+- `AppConfig` 를 사용했던 방식이 애노테이션 기반(XML 기반도 있다)의 자바 설정 클래스로 스프링 컨테이너를 만든 것
+- `new AnnotationConfigApplicationContext(AppConfig.class)` 는 `ApplicationContext`의 구현체
+
+### 스프링 컨테이너 생성 과정
+
+1. 스프링 컨테이너 생성
+    - `new AnnotationConfigApplicationContext(AppConfig.class)`
+    - 생성할 때 구성 정보 지정이 필요함. - `AppConfig.class` 를 구성 정보로 지정
+2. 스프링 빈 등록
+    
+    ![image.png](attachment:9cb87655-2041-439d-9823-d3f9b0c9d6d9:image.png)
+    
+    - 스프링 컨테이너는 파라미터로 넘어온 설정 클래스 정보를 사용해서 빈을 등록
+    - 빈 이름
+        - 메서드 이름 사용
+        - 직접 부여도 가능 @Bean(name=”memberService2”)
+        - 절대 항상 다른 이름을 부여 해야 함.
+3. 스프링 빈 의존관계 설정
+    
+    ![image.png](attachment:8500adcb-9185-4088-b8f5-ec5ffc5b2ed1:image.png)
+    
+    - 스프링 컨테이너는 설정 정보를 참고해서 의존관계 주입(DI) ← 동적 의존관계
+
+## 컨테이너에 등록된 모든 빈 조회
+
+- 골뱅이 하나로 제대로 등록 된 건가? 확인해보자!
+
+test에서 `beanfind/ApplicationContextInfoTest`
+
+```java
+public class ApplicationContextInfoTest {
+    
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+    
+    @Test
+    @DisplayName("모든 빈 출력하기")
+    void findAllBean() {
+        String[] beanDefinitionNames = ac.getBeanDefinitionNames();
+        
+        for (String beanDefinitionName : beanDefinitionNames) {
+            Object bean = ac.getBean(beanDefinitionName);
+            System.out.println("name = " + beanDefinitionName + " object = " + bean);
+        }}
+}
+```
+
+<aside>
+💡
+
+`iter` 
+
+for 문을 자동으로 만들어 줌
+
+</aside>
+
+실행하면 아래와 같이 내가 등록한 애플리케이션 빈 뿐 아니라 스프링 내부에서 사용하는 빈도 같이 출력된다. 
+
+```bash
+name = org.springframework.context.annotation.internalConfigurationAnnotationProcessor object = org.springframework.context.annotation.ConfigurationClassPostProcessor@43b4fe19
+name = org.springframework.context.annotation.internalAutowiredAnnotationProcessor object = org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor@25ddbbbb
+name = org.springframework.context.annotation.internalCommonAnnotationProcessor object = org.springframework.context.annotation.CommonAnnotationBeanPostProcessor@1536602f
+name = org.springframework.context.event.internalEventListenerProcessor object = org.springframework.context.event.EventListenerMethodProcessor@4ebea12c
+name = org.springframework.context.event.internalEventListenerFactory object = org.springframework.context.event.DefaultEventListenerFactory@2a1edad4
+name = appConfig object = hello.core.AppConfig$$SpringCGLIB$$0@6256ac4f
+name = memberService object = hello.core.member.MemberServiceImlp@44c79f32
+name = memberRepository object = hello.core.member.MemoryMemberRepository@7fcbe147
+name = orderService object = hello.core.order.OrderServiceImpl@235f4c10
+name = discountPolicy object = hello.core.discount.RateDiscountPolicy@743cb8e0
+```
+
+⇒ 코드를 살짝 수정해서 실행하면 내가 만든 5개만 출력됨.
+
+```java
+@Test
+    @DisplayName("애플리케이션 빈 출력하기")
+    void findApplicationBean() {
+        String[] beanDefinitionNames = ac.getBeanDefinitionNames();
+        
+        for (String beanDefinitionName : beanDefinitionNames) {
+            BeanDefinition beanDefinition = ac.getBeanDefinition(beanDefinitionName);
+
+            //Role ROLE_APPLICATION: 직접 등록한 애플리케이션 빈
+            //Role ROLE_INFRASTRUCTURE: 스프링이 내부에서 사용하는 빈
+            if (beanDefinition.getRole() == BeanDefinition.ROLE_APPLICATION) {
+                Object bean = ac.getBean(beanDefinitionName);
+                System.out.println("name = " + beanDefinitionName + " object = " + bean);
+
+            }
+        }}
+```
+
+## 스프링 빈 조회 - 기본 방법
+
+### 빈 이름과 타입으로 조회
+
+- `ac.getBean(빈이름, 타입)`, `ac.getBean(타입)`
+
+```java
+public class ApplicationContextBasicFindTest {
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+
+    @Test
+    @DisplayName("빈 이름으로 조회")
+    void findBeanByName() {
+        MemberService memberService = ac.getBean("memberService", MemberService.class);
+        Assertions.assertThat(memberService).isInstanceOf(MemberServiceImlp.class);
+    }
+
+    @Test
+    @DisplayName("이름 없이 타입으로 조회")
+    void findBeanByType() {
+        MemberService memberService = ac.getBean(MemberService.class);
+        Assertions.assertThat(memberService).isInstanceOf(MemberServiceImlp.class);
+    }
+
+}
+    
+```
+
+구현체로 조회하는 코드 : 구현에 의존된 코드라 좋은 코드는 아님.
+
+```java
+    @Test
+    @DisplayName("구체 타입으로 조회")
+    void findBeanByName2() {
+        MemberService memberService = ac.getBean("memberService", MemberServiceImlp.class);
+        Assertions.assertThat(memberService).isInstanceOf(MemberServiceImlp.class);
+    }
+```
+
+### 실패 테스트
+
+- 만약 조회가 안되면..일 때의 테스트
+
+```java
+    @Test
+    @DisplayName("빈 이름으로 조회X")
+    void findBeanByNameX(){
+//        ac.getBean("xxxxx", MemberService.class);
+//        org.junit.jupiter.api.Assertions 으로 부터 가져옴 assertThrows
+        assertThrows(NoSuchBeanDefinitionException.class,
+                () -> ac.getBean("xxxxx", MemberService.class));
+        // 해당 예외가 터져야 테스트 성공
+    }
+```
+
+## 스프링 빈 조회 - 동일한 타입 둘 이상
+
+- 오류가 발생한다. 이때는 빈 이름 지정해야 함.
+- `ac.getBeansOfType()` 하면 해당 타입의 모든 빈을 조회 할 수 있음
+
+그냥 타입으로 getBean 할 때 같은 타입 두 개면 이런 에러가 난다.
+
+```java
+NoUniqueBeanDefinitionException: memberRepository1,memberRepository2
+```
+
+AppConfig를 수정하기는 귀찮으니까 테스트 코드 내부에 configuration을 만들어 준다.
+
+`SameBeanConfig`
+
+```java
+public class ApplicationContextSameBeanFindTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(SameBeanConfig.class);
+
+    @Test
+    @DisplayName("타입으로 조회시 같은 타입이 둘 이상 있으면, 중복 오류가 발생한다")
+    void findBeanByTypeDuplicate() {
+        MemberRepository bean = ac.getBean(MemberRepository.class);
+        assertThrows(NoUniqueBeanDefinitionException.class,
+                () -> ac.getBean(MemberRepository.class));
+    }
+
+    @Configuration
+    static class SameBeanConfig {
+        @Bean
+        public MemberRepository memberRepository1() {
+            return new MemoryMemberRepository();
+        }
+
+        @Bean
+        public MemberRepository memberRepository2() {
+            return new MemoryMemberRepository();
+        }
+    }
+}
+```
+
+### 같은 타입이라면 빈 이름을 지정
+
+```java
+    @Test
+    @DisplayName("타입으로 조회시 같은 타입이 둘 이상 있으면, 빈 이름을 지정하면 된다")
+    void findBeanByName() {
+        MemberRepository memberRepository = ac.getBean("memberRepository1", MemberRepository.class);
+        assertThat(memberRepository).isInstanceOf(MemberRepository.class);
+    }
+```
+
+### 특정 타입 전부 조회
+
+```java
+    @Test
+    @DisplayName("특정 타입을 모두 조회하기")
+    void findAllBeanByType() {
+        Map<String, MemberRepository> beansOfType = ac.getBeansOfType(MemberRepository.class);
+        for (String key : beansOfType.keySet()) {
+            System.out.println("key = " + key + " value = " + beansOfType.get(key));
+
+        }
+        System.out.println("beansOfType = " + beansOfType);
+        assertThat(beansOfType.size()).isEqualTo(2);
+    }
+```
+
+## 스프링 빈 조회 - 상속 관계
+
+- 부모 타입을 조회하면 자식 타입은 전부 다 함께 조회된다.
+- Object 타입으로 조회하면 모든 스프링 빈을 조회함.
+
+```java
+public class ApplicationContextExtendsFindTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(TestConfig.class);
+
+    @Test
+    @DisplayName("부모 타입으로 조회시, 자식이 둘 이상 있으면, 중복 오류가 발생한다")
+    void findBeanByParentTypeDuplicate() {
+        assertThrows(NoUniqueBeanDefinitionException.class,
+                () -> ac.getBean(DiscountPolicy.class));
+    }
+
+    @Test
+    @DisplayName("부모 타입으로 조회시, 자식이 둘 이상 있으면, 빈 이름을 지정하면 된다")
+    void findBeanByParentTypeBeanName() {
+        DiscountPolicy rateDiscountPolicy = ac.getBean("rateDiscountPolicy", DiscountPolicy.class);
+        assertThat(rateDiscountPolicy).isInstanceOf(RateDiscountPolicy.class);
+    }
+
+    @Test
+    @DisplayName("부모 타입으로 모두 조회하기")
+    void findAllBeanByParentType() {
+        Map<String, DiscountPolicy> beansOfType = ac.getBeansOfType(DiscountPolicy.class);
+        assertThat(beansOfType.size()).isEqualTo(2);
+        for (String key : beansOfType.keySet()) {
+            System.out.println("key = " + key + " value = " + beansOfType.get(key));
+        }
+    }
+
+    @Test
+    @DisplayName("부모 타입으로 모두 조회하기 - Object")
+    void findAllBeanByObjectType() {
+        Map<String, Object> beansOfType = ac.getBeansOfType(Object.class);
+        for (String key : beansOfType.keySet()) {
+            System.out.println("key = " + key + " value = " + beansOfType.get(key));
+        }
+    }
+
+    @Test
+    @DisplayName("특정 하위 타입으로 조회") void findBeanBySubType() {
+        RateDiscountPolicy bean = ac.getBean(RateDiscountPolicy.class);
+        assertThat(bean).isInstanceOf(RateDiscountPolicy.class);
+    }
+
+    @Configuration
+    static class TestConfig {
+        @Bean
+        public DiscountPolicy rateDiscountPolicy() {
+            return new RateDiscountPolicy();
+        }
+
+        @Bean
+        public  DiscountPolicy fixDiscountPolicy() {
+            return new FixDiscountPolicy();
+        }
+    }
+}
+```
+
+## BeanFactory 와 ApplicationContext
+
+![image.png](attachment:c668a544-18be-452a-bbb8-73f2424c8e64:image.png)
+
+### BeanFactory
+
+- 스프링 컨테이너의 최상위 인터페이스
+- 스프링 빈을 관리하고 조회하는 역할
+- `getBean()`을 제공
+
+### ApplicationContext
+
+- BeanFactory 기능을 모두 상속받아서 제공
+- 빈 관리, 조회 기능 + 수 많은 부가기능
+- 제공하는 부가 기능들
+    
+    ![image.png](attachment:283d888e-c61c-4b5d-9ada-2a6c6e4a2e37:image.png)
+    
+    - 메세지 소스
+        - 국제화 기능 : 한국에 오면 한국어로, 영어권은 영어로 출력
+    - 환경 변수
+        - 로컬, 개발, 운영 등 구분해서 처리
+    - 애플리케이션 이벤트
+        - 이벤트를 발행하고 구독하는 모델을 편리하게 지원
+    - 리소스 조회
+        - 파일, 클래스패스, 외부 등 리소스를 편리하게 조회
+- BeanFactory를 직접 사용할 일은 거의 없다. 부가기능이 있는 ApplicationContext를 사용함.
+
+## 다양한 설정 형식 지원 - 자바 코드, XML
+
+- 자바 코드, XML, Groovy 등등 다 된다.
+
+![image.png](attachment:77487c18-c431-4423-b366-9cdd432833b4:image.png)
+
+### 애노테이션 기반
+
+```java
+ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+```
+
+- `AnnotationConfigApplicationContext` 클래스를 사용하면서 자바 코드로 된 설정 정보를 넘김
+
+### XML 기반 설정 사용
+
+- 최근 스프링 부트를 많이 사용하면서 사용하지 않음
+- `GenericXmlApplicationContext` 를 사용하면서 xml 설정 정보를 넘김
+- 자바 대신 xml 코드를 사용하는 것 외에는 달라지는 것이 없다.
+    
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+        <bean id="memberService" class="hello.core.member.MemberServiceImpl">
+            <constructor-arg name="memberRepository" ref="memberRepository" />
+        </bean>
+        <bean id="memberRepository" class="hello.core.member.MemoryMemberRepository" />
+        <bean id="orderService" class="hello.core.order.OrderServiceImpl">
+            <constructor-arg name="memberRepository" ref="memberRepository" />
+            <constructor-arg name="discountPolicy" ref="discountPolicy" />
+        </bean>
+        <bean id="discountPolicy" class="hello.core.discount.RateDiscountPolicy" />
+    </beans>
+    ```
+    
+
+## 스프링 빈 설정 메타 정보 - BeanDefinition
+
+- **BeanDefinition**이라는 추상화 덕분 = **빈 설정 메타 정보**
+- 역할과 구현을 개념적으로 나눈 것
+    - XML 을 읽어서 BeanDefinition을 만든다.
+    - 자바 를 읽어서 BeanDefinition을 만든다.
+    - 스프링 컨테이너는 오직 BeanDefinition만 알면 된다.
+- 빈 당 하나씩 메타 정보가 생성된다.
+- 스프링 컨테이너는 이 메타 정보를 기반으로 빈을 생성
+
+![image.png](attachment:194ae4fb-391a-4578-abbc-b05fa96256f3:image.png)
+
+- BeanDefinition을 직접 생성해서 스프링 컨테이너에 등록할 수 있다. 근데 그럴 일 거의 없음.
+- 스프링이 다양한 형태의 설정 정보를 BeanDefinition으로 추상화해서 사용하는 것 정도만 이해.
+
+- **BeanDefinition 정보**
+    - BeanClassName: 생성할 빈의 클래스 명(자바 설정 처럼 팩토리 역할의 빈을 사용하면 없음)
+    - factoryBeanName: 팩토리 역할의 빈을 사용할 경우 이름, 예) appConfig
+    - factoryMethodName: 빈을 생성할 팩토리 메서드 지정, 예) memberService
+    - Scope: 싱글톤(기본값)
+    - lazyInit: 스프링 컨테이너를 생성할 때 빈을 생성하는 것이 아니라, 실제 빈을 사용할 때 까지 최대한 생성을 지연
+    - 처리 하는지 여부
+    - InitMethodName: 빈을 생성하고, 의존관계를 적용한 뒤에 호출되는 초기화 메서드 명
+    - DestroyMethodName: 빈의 생명주기가 끝나서 제거하기 직전에 호출되는 메서드 명
+    - Constructor arguments, Properties: 의존관계 주입에서 사용한다. (자바 설정 처럼 팩토리 역할의 빈을 사용하면 없음)
+
+## 혼공컴운
+
+### CPU 성능 향상 기법
+
+**빠른 CPU를 위한 설계 기법**
+
+`클럭` : 부품들은 클럭 신호에 따라 움직인다.
+
+- 클럭 속도가 높을 수록 CPU 성능이 좋다. CPU 속도 단위 = 클럭 속도
+- 무작정 높다고 좋지는 않다. 왜? 발열 문제!!
+
+→ `코어`와 `스레드` 수를 늘리는 방법
+
+`멀티코어` : CPU하나에 코어(CPU)가 여러개 있다.
+
+- 연산속도가 코어 수에 비례하여 증가하지는 않음.(팀플을 생각해보자..)
+- 코어마다 처리할 명령어를 얼마나 적절하게 분배하느냐가 연산 속도에 큰 영향을 준다.
+
+`스레드` : 실행 흐름의 단위(사전적)
+
+- `하드웨어적 스레드` : 하나의 코어가 동시에 처리하는 명령어 단위 (예, 8코어 16스레드 cpu ⇒ 코어 하나당 2 개의 하드웨어 스레드를 처리)
+- `소프트웨어적 스레드` :  하나의 프로그램에서 독립적으로 실행되는 단위
+    1. 사용자로 부터 입력받은 내용을 화면에 보여 주는 기능
+    2. 사용자가 입력한 내용이 맞춤법에 맞는지 검사하는 기능
+    3. 사용자가 입력한 내용을 수시로 저장하는 기능 
+    - 을 각각 스레드로 만들어서 동시에 실행할 수 있다.
+
+`멀티스레드 프로세서`
+
+- 하나의 코어로 여러 명령어를 동시에 처리하는 CPU
+- 레지스터 세트가 코어 당 2개씩 있다면 2스레드가 되는 것 처럼.. 그림에 나와있음.
+
+## 프로젝트 과제
+
+### ERD란?
+
+[https://velog.io/@kjhxxxx/DataBase-ERD란](https://velog.io/@kjhxxxx/DataBase-ERD%EB%9E%80)
+
+대충 엔티티들(필요한 데이터들)의 관계를 표현하는 그림인 것 같다. 
+
+이것도 표현하는 여러 방법이 있는 듯 하다.
+
+**1번 방법**
+
+![image.png](attachment:b1f7f746-013b-4e90-8439-bee5f857afe1:image.png)
+
+![image.png](attachment:01d2dd20-098b-49db-ace6-ec20ec2dddd8:image.png)
+
+**2번 방법**
+
+![image.png](attachment:2a76b88c-b855-4f42-9d3a-53523a2cbb64:image.png)
+
+figjam으로 해보려 했는데 템플릿이 2번 방법이 있다.
+
+![image.png](attachment:7337ce6e-9ce4-42ac-96a8-0a6f39bd1168:image.png)
+
+근데.. 나한테는 1번 방법이 보다 더 직관적인 것 같아서 다른 프로그램을 찾아봤다.
+
+[ERDCloud](https://www.erdcloud.com/) -  팀플도 가능하고 좋은 듯
+
+이런 식으로 그려봤다. ui가 조금 구린데 그래도 좋다.
+
+![image.png](attachment:4b7c59df-3bd0-4e8e-866f-288db77468a6:image.png)
+
+
+끝.
