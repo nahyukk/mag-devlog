@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "./Navbar.module.css";
-import DarkMode from "./Darkmode";
+import DarkMode from "./DarkMode";
 import HamburgerButton from "./HamburgerButton";
 
 const Navbar = () => {
