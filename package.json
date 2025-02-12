@@ -1,6 +1,5 @@
 {
   "name": "til-study",
-  "homepage": "https://nahyukk.github.io/til-and-study",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next export",
-    "deploy": "gh-pages -d out"
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
