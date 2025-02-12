@@ -5,10 +5,16 @@ import matter from "gray-matter";
 import { notFound } from "next/navigation";
 import styles from "../../page.module.css";
 import Post from "../../components/Post";
+import { getAllTILSlugs } from "../../../lib/getAllTilSlugs";
 
 export const metadata = {
   title: "Mag's TIL",
 };
+
+export async function generateStaticParams() {
+  const slugs = await getAllTILSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 const getTILPost = async (slug) => {
   const postPath = path.join(process.cwd(), "posts", "TIL", `${slug}.mdx`);

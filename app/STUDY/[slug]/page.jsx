@@ -3,10 +3,16 @@ import { notFound } from "next/navigation";
 import styles from "../../page.module.css";
 import Post from "../../components/Post";
 import getStudyPost from "../../../lib/getStudyPost";
+import { getAllStudySlugs } from "../../../lib/getAllStudySlugs";
 
 export const metadata = {
   title: "Mag's Study",
 };
+
+export async function generateStaticParams() {
+  const slugs = await getAllStudySlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 export default async function StudyPost({ params }) {
   const { slug } = params;
