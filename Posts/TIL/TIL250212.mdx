@@ -1,0 +1,402 @@
+---
+title: "TIL 250212"
+description: "스프링 강의, 알고리즘 3문제, 스프링 exp 입문 완료"
+filter: "🧣2025.02"
+---
+
+# What I did
+
+스프링 강의, 알고리즘 3문제, 스프링 exp 입문 완료
+
+# 배운점
+
+## 스프링 강의
+
+프레임워크 만들기 v3까지는 어찌 저찌 따라갔는데.. v4, v5 부터는 너무 집중이 안됐다. 스프링이 싫어질 정도…
+
+## 알고리즘
+
+10818, 1152, 2577
+
+- 최소 값, 최대값이 문제에 정해져있으니 그 값을 넣으면 해결됨. → 덕분에 if도 뺄 수 있음. (코드 간소화)
+- `StringTokenizer`
+    - `.countTokens()` - 토큰 갯수 세기
+    - `.hasMoreTokens()` - while 문 쓸 때 좋을 듯
+    - `.nextToken()` - 다음 토큰 받는 거
+- 향상된 for 문으로 수정
+    
+    ```java
+    for (int j = 0; j < abc_arr.length; j++) {
+          int result = Integer.parseInt(abc_arr[j]);
+          ...
+    ```
+    
+    ```java
+    for (String s : abc_arr) {
+          int result = Integer.parseInt(s);
+          ...
+    ```
+    
+
+## 스프링 입문 EXP
+
+### 4. JPA와 스프링 데이터의 기본 CRUD 구현
+
+스프링 데이터 JPA를 활용하여 데이터베이스에 접근하고, 회원 정보를 저장, 조회, 수정, 삭제하는 CRUD 기능을 구현합니다. CRUD 기능이 구현된 코드 및 데이터베이스 스크린샷을 결과물로 제출합니다.
+
+1. JPA, H2 DB 의존성 추가
+    
+    ```java
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+    ```
+    
+2. member entity
+    
+    `/domain/Member.java`
+    
+    ```java
+    package grm.spring.basic.domain;
+    
+    import jakarta.persistence.Entity;
+    import jakarta.persistence.GeneratedValue;
+    import jakarta.persistence.GenerationType;
+    import jakarta.persistence.Id;
+    
+    @Entity
+    public class Member {
+        
+        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        private String username;
+    
+        public Long getId() {
+            return id;
+        }
+    
+        public void setId(Long id) {
+            this.id = id;
+        }
+    
+        public String getUsername() {
+            return username;
+        }
+    
+        public void setUsername(String username) {
+            this.username = username;
+        }
+    }
+    ```
+    
+    - @Entity : DB 테이블과 연결
+    - @GeneratedValue(strategy = GenerationType.IDENTITY) : ID 자동 증가
+3. MemberRepository 만들기(JPA 활용)
+    
+    ```java
+    package grm.spring.basic.repository;
+    
+    import grm.spring.basic.domain.Member;
+    import org.springframework.data.jpa.repository.JpaRepository;
+    import org.springframework.stereotype.Repository;
+    
+    @Repository
+    public interface MemberRepository extends JpaRepository<Member, Long> {
+    }
+    ```
+    
+    **자동 제공되는 메서드들**
+    
+    - save(Member member) : 회원 저장 , findById 후 save 하면 자동으로 update로 받아들임.
+    - findById(Long id) : 특정 회원 조회
+    - findAll() : 모든 회원 조회
+    - deleteById(Long id) : 특정 회원 삭제
+4. MemberService 구현(CRUD 기능)
+    
+    ```java
+    package grm.spring.basic.service;
+    
+    import grm.spring.basic.domain.Member;
+    import grm.spring.basic.repository.MemberRepository;
+    
+    import java.util.List;
+    
+    @Service
+    public class MemberService {
+        private final MemberRepository memberRepository;
+    
+        public MemberService(MemberRepository memberRepository) {
+            this.memberRepository = memberRepository;
+        }
+    
+        // Create
+        public Long join(Member member) {
+            memberRepository.save(member);
+            return member.getId();
+        }
+    
+        // Read
+        public List<Member> findAll() {
+            return memberRepository.findAll();
+        }
+    
+        // Update
+        public Member update(Long id, String newUsername) {
+            Member member = memberRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 회원 없음: " + id));
+            member.setUsername(newUsername);
+            return memberRepository.save(member);
+        }
+    
+        // Delete
+        public void delete(Long id) {
+            memberRepository.deleteById(id);
+        }
+    
+    }
+    
+    ```
+    
+    - `.orElseThrow(() -> new IllegalArgumentException("해당 회원 없음: " + id));` 이 예외처리 안하면 아래 에러가 뜸.
+        
+        ```java
+        Incompatible types. Found: 'java.util.Optional<grm.spring.basic.domain.Member>', required: 'grm.spring.basic.domain.Member’ 
+        ```
+        
+    
+5. 컨트롤러 
+    
+    ```java
+    package grm.spring.basic.controller;
+    
+    import grm.spring.basic.domain.Member;
+    import grm.spring.basic.service.MemberService;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.web.bind.annotation.*;
+    
+    import java.util.List;
+    
+    @Controller
+    public class MemberController {
+        private final MemberService memberService;
+    
+        @Autowired
+        public MemberController(MemberService memberService) {
+            this.memberService = memberService;
+        }
+    
+        // Create
+        @GetMapping("members/new")
+        public String createForm() {
+            return "members/createMemberForm";
+        }
+    
+        @PostMapping("/members/new")
+        public String create(MemberForm form) {
+            Member member = new Member();
+            member.setUsername(form.getUsername());
+    
+            memberService.join(member);
+    
+            return "redirect:/members";
+        }
+    
+        // Read
+        @GetMapping("/members")
+        public List<Member> getAllMembers() {
+            return  memberService.findAll();
+        }
+    
+        // Update
+        @PutMapping("/{id}")
+        public Member updateMember(@PathVariable Long id, @RequestParam String username) {
+            return memberService.update(id, username);
+        }
+    
+        // Delete
+        @DeleteMapping("/{id}")
+        public void deleteMember(@PathVariable Long id) {
+            memberService.delete(id);
+        }
+        
+        // Test를 위해 작성
+        public Optional<Member> findOne(Long memberId) {
+            return memberRepository.findById(memberId);
+        }
+    }
+    
+    ```
+    
+6. DB 연결
+    
+    저장 모드라서 h2 서버 먼저 열고(터미널로 오픈) 스프링 실행
+    
+    `SELECT * FROM MEMBER` 로 DB 연결 확인
+    
+	![Image](https://github-production-user-asset-6210df.s3.amazonaws.com/132262934/412037938-98da62fa-a40e-4854-81cb-388a4597610e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250211%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250211T153428Z&X-Amz-Expires=300&X-Amz-Signature=6893c1f0ffa42cbf34d0be08fc49a9a6a980db5128c2415b460e1d3934ae80b5&X-Amz-SignedHeaders=host)
+
+	![Image](https://github-production-user-asset-6210df.s3.amazonaws.com/132262934/412037992-22eb5154-d951-481c-8ed2-3cbb33ccfd0c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250211%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250211T153444Z&X-Amz-Expires=300&X-Amz-Signature=826f3d2b0f111c3b3afbcacbc73e9791a257e7066046b29bd468485bf8d52273&X-Amz-SignedHeaders=host)
+    
+7. 테스트 코드 작성
+    
+    ```java
+    package grm.spring.basic.service;
+    
+    import grm.spring.basic.domain.Member;
+    import grm.spring.basic.repository.MemberRepository;
+    import org.assertj.core.api.Assertions;
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.transaction.annotation.Transactional;
+    
+    import java.util.List;
+    
+    import static org.assertj.core.api.Assertions.assertThat;
+    
+    @SpringBootTest
+    @Transactional
+    class MemberServiceTest {
+    
+        @Autowired
+        private MemberService memberService;
+    
+        @Autowired
+        private MemberRepository memberRepository;
+    
+        @Test
+        public void testMemberJoin() {
+            // Given
+            Member member = new Member();
+            member.setUsername("Mag :)");
+    
+            // When
+            Long saveId = memberService.join(member);
+    
+            // Then
+            Member findMember = memberService.findOne(savedId).get();
+            assertThat(member.getUsername()).isEqualTo(findMember.getUsername());
+            System.out.println("회원 저장 테스트");
+        }
+    
+        @Test
+        public void testMemberUpdate() {
+            // Given
+            Member member = new Member();
+            member.setUsername("Kim");
+    
+            // When
+            Long savedId = memberService.join(member);
+            String newUsername = "Update Kim";
+            memberService.update(savedId, newUsername);
+    
+            // Then
+            Member updatedMember = memberRepository.findById(savedId).get();
+            assertThat(updatedMember.getUsername()).isEqualTo(newUsername);
+            System.out.println("회원 수정 테스트");
+        }
+    
+        @Test
+        public void testMemberDelete() {
+            // Given
+            Member member = new Member();
+            member.setUsername("Na");
+    
+            // When
+            Long savedId = memberService.join(member);
+            memberService.delete(savedId);
+    
+            // Then
+            List<Member> members = memberRepository.findAll();
+            assertThat(members).doesNotContain(member);
+            System.out.println("회원 삭제 테스트");
+        }
+    }
+    ```
+    8. 테스트 결과
+    
+    ![Image](https://github-production-user-asset-6210df.s3.amazonaws.com/132262934/412038024-b700303b-b503-4ce4-896b-eec6fac57e69.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250211%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250211T153359Z&X-Amz-Expires=300&X-Amz-Signature=978b88f03da676be7c7cb555f5d7c4f0a8c6d6db1284a8e1cdd269807aa94f49&X-Amz-SignedHeaders=host)
+    
+
+### 5. 트랜잭션 관리 설정하기
+
+스프링 부트에서의 트랜잭션 관리를 이해하고 @Transactional 애노테이션을 사용하여 데이터 저장 시 트랜잭션을 적용해 봅니다. 에러 발생 시 롤백되는지 확인합니다.  트랜잭션 테스트 코드와 롤백 결과 스크린샷을 결과물로 제출합니다.
+
+1. MemberSerive에 join 부분에 애노테이션 추가 및 유효성 검사 추가
+    
+    ```java
+        // Create
+        @Transactional
+        public Long join(Member member) {
+            if (member.getUsername().isEmpty()) {
+                throw new IllegalArgumentException("이름을 입력해주세요.");
+            }
+            memberRepository.save(member);
+            return member.getId();
+        }
+    ```
+    
+2. 테스트 코드
+    
+    ```java
+        @Test
+        public void testTransactional() {
+            Member member = new Member();
+            member.setUsername("");
+    
+            try {
+                memberService.join(member);
+            } catch (IllegalArgumentException e) {
+                assertThat(e.getMessage()).isEqualTo("이름을 입력해주세요.");
+            }
+            
+        }
+    ```
+    
+3. 결과
+    
+    ![Image](https://github-production-user-asset-6210df.s3.amazonaws.com/132262934/412038074-837df18e-5e29-4086-9560-43402665f48c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250211%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250211T153319Z&X-Amz-Expires=300&X-Amz-Signature=60cab21417b908dea006c60c61f0fab372a7ea89728472cf0bc754a935a10d22&X-Amz-SignedHeaders=host)
+    
+
+### 6. AOP 적용하여 로깅 기능 추가하기
+
+AOP 개념을 이해하고 @Aspect와 @Around를 사용하여 로깅 기능을 구현합니다. 서비스 메서드 실행 전후에 실행 시간을 기록합니다. 로깅이 적용된 AOP 코드 및 실행 로그 스크린샷을 결과물로 제출합니다.
+
+1. AOP dependency 추가
+    
+    ```java
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    ```
+    
+2. 코드
+    
+    ```java
+    package grm.spring.basic.aop;
+    
+    import org.aspectj.lang.ProceedingJoinPoint;
+    import org.aspectj.lang.annotation.Around;
+    import org.aspectj.lang.annotation.Aspect;
+    import org.springframework.stereotype.Component;
+    
+    @Aspect
+    @Component
+    public class TimeTraceAop {
+    
+        @Around("execution(* grm.spring.basic..*(..))")
+        public Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
+            long start = System.currentTimeMillis();
+            System.out.println("START: " + joinPoint.toString());
+            try {
+                return joinPoint.proceed();
+            } finally {
+                long finish = System.currentTimeMillis();
+                long timeMs = finish - start;
+                System.out.println("END: " + joinPoint.toString() + " " + timeMs + "ms");
+            }
+        }
+    }
+    ```
+    
+3. 결과
+	![Image](https://github-production-user-asset-6210df.s3.amazonaws.com/132262934/412039544-86fe4efa-8b15-4f45-b61a-c96837b8809c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250211%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250211T153220Z&X-Amz-Expires=300&X-Amz-Signature=1bbbfcd4c5ec6b1c1d03b1a1bbe332e1c93993c32dd8da197145cd5a8dbb86ca&X-Amz-SignedHeaders=host)

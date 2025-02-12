@@ -1,0 +1,503 @@
+---
+title: "[SpringMVC] 웹 페이지 만들기"
+description: "상품 관리 웹 페이지 만들기"
+date: "2025.02.12"
+filter: ["Spring"]
+---
+<aside>
+#### 참고
+인프런 강의
+김영한 강사님의 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술 중
+https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1
+</aside>
+
+<br/>
+# 웹 페이지 만들기
+
+JAR vs WAR 차이
+
+1.	**JAR (Java ARchive)**
+
+- 일반적인 **실행 가능한 자바 애플리케이션**
+- spring-boot-starter-web을 포함하면 **내장 톰캣**으로 실행 가능
+- **독립적으로 실행 가능** → java -jar myapp.jar
+
+2.	**WAR (Web Application Archive)**
+
+- **웹 애플리케이션 배포용** 패키지
+- **별도의 WAS(예: Tomcat, JBoss)에 배포**해야 실행 가능
+- spring-boot-starter-web 사용 시, provided 설정 필요
+
+JAR를 쓴다. 왜?
+
+1. **내장 톰캣 포함 (설치 필요 없음)** → java -jar myapp.jar로 바로 실행
+2. **설정 간편** → WAR은 WAS(Tomcat 등) 설치 & 설정 필요
+3. **컨테이너 환경 (Docker, Kubernetes)에서 유리**
+4. **CI/CD 편리** → JAR 하나만 배포하면 끝
+
+## 프로젝트 생성
+
+![Image](https://github.com/user-attachments/assets/c7f101ca-dcd7-4201-b3b3-5c17b9dcf41a)
+
+## 요구사항 분석
+
+상품 도메인 모델
+
+- 상품 ID
+- 상품명
+- 가격
+- 수량
+
+상품 관리 기능
+
+- 상품 목록
+- 상품 상세
+- 상품 등록
+- 상품 수정
+
+![Image](https://github.com/user-attachments/assets/1956960b-7d1f-4027-96e2-3cd584a899b9)
+
+## 상품 도메인 개발
+
+`Item` - 상품 객체
+
+```java
+package hello.itemservice.domain.item;
+
+@Data
+public class Item {
+
+    private Long id;
+    private String itemName;
+    private Integer price;
+    private Integer quantity;
+
+    public Item() {
+    }
+
+    public Item(String itemName, Integer price, Integer quantity) {
+        this.itemName = itemName;
+        this.price = price;
+        this.quantity = quantity;
+    }
+}
+
+```
+
+- @Data
+    - 원래는 그냥 Getter, Setter를 써야함. Data는 조금 위험할지도
+    - @Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode 다 알고 써야함
+    - 그냥 예제라서 씀.
+
+`ItemRepository` - 상품 저장소
+
+```java
+package hello.itemservice.domain.item;
+
+@Repository
+public class ItemRepository {
+    private static final Map<Long, Item> store = new HashMap<>();
+    private static long sequence = 0L;
+
+    public Item save(Item item) {
+        item.setId(++sequence);
+        store.put(item.getId(), item);
+        return item;
+    }
+
+    public Item findById(Long id) {
+        return store.get(id);
+    }
+
+    public List<Item> findAll() {
+        return new ArrayList<>(store.values());
+    }
+
+    public void update(Long itemId, Item updateParam) {
+        Item findItem = findById(itemId);
+        findItem.setItemName(updateParam.getItemName());
+        findItem.setPrice(updateParam.getPrice());
+        findItem.setQuantity(updateParam.getQuantity());
+    }
+
+		//테스트용
+    public void clearStore() {
+        store.clear();
+    }
+}
+
+```
+
+- @Repository
+    - @Component가 포함됨 → 컴포넌트 스캔에 포함
+
+repository - `test`
+
+```java
+package hello.itemservice.domain.item;
+
+class ItemRepositoryTest {
+    ItemRepository itemRepository = new ItemRepository();
+
+    @AfterEach
+    void afterEach() {
+        itemRepository.clearStore();
+    }
+
+    @Test
+    void save() {
+        // given
+        Item item = new Item("itemA", 10000, 10);
+        // when
+        Item savedItem = itemRepository.save(item);
+        // then
+        Item findItem = itemRepository.findById(item.getId());
+        assertThat(findItem).isEqualTo(savedItem);
+    }
+
+    @Test
+    void findAll() {
+        // given
+        Item item1 = new Item("item1", 10000, 10);
+        Item item2 = new Item("item2", 20000, 20);
+
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+
+        // when
+        List<Item> result = itemRepository.findAll();
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).contains(item1, item2);
+    }
+
+    @Test
+    void updateItem() {
+        // given
+        Item item = new Item("itemA", 10000, 10);
+        Item savedItem = itemRepository.save(item);
+        Long itemId = savedItem.getId();
+
+        // when
+        Item updateParam = new Item("itemB", 20000, 30);
+        itemRepository.update(itemId, updateParam);
+
+        // then
+        Item findItem = itemRepository.findById(itemId);
+
+        assertThat(findItem.getItemName()).isEqualTo(updateParam.getItemName());
+        assertThat(findItem.getPrice()).isEqualTo(updateParam.getPrice());
+        assertThat(findItem.getQuantity()).isEqualTo(updateParam.getQuantity());
+
+    }
+
+}
+```
+
+## 상품 서비스 HTML
+
+비즈니스 로직 개발하는 동안, 웹 퍼블리셔가 HTML 마크업을 넘긴 상황
+
+**부트스트랩**
+
+https://getbootstrap.com/
+
+`HTML` - 가장 아래에 HTML 추가 해놓음
+
+- resourses/static 에 넣으면 공개가 되므로, 실제 서비스에서는 그러지 말자.
+
+## 상품 목록 - 타임리프
+
+타임리프 → HTML이 그대로 유지 됨. 네추럴 템플릿
+
+기존 html을 동적으로 만드는 과정
+
+`templates/basic/items.html`
+
+```html
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container" style="max-width: 600px">
+    <div class="py-5 text-center">
+        <h2>상품 목록</h2></div>
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary float-end"
+                    onclick="location.href='addForm.html'"
+                    th:onclick="|location.href='@{/basic/items/add}'|"
+                    type="button">상품 등록
+            </button>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>상품명</th>
+                <th>가격</th>
+                <th>수량</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td><a href="item.html" th:href="@{/basic/items/{itemId}(itemId=${item.id})}" th:text="${item.id}">회원id</a></td>
+                <td><a href="item.html" th:href="@{|/basic/items/${itemId}|}"th:text="${item.itemName}">상품명</a></td>
+                <td th:text="${item.price}">10000</td>
+                <td th:text="${item.quantity}">10</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div> <!-- /container -->
+</body>
+</html>
+```
+
+- **타임리프 사용 선언**
+    - `<html xmlns:th="http://www.thymeleaf.org">` 추가 해주기
+- `th:` 를 우선으로 하고 없으면 원래 써있는 걸로 된다.
+- `th:` 부분은 서버사이드 렌더링된다.
+- html 파일로 직접 열면, 웹브라우저는 `th:` 모르니까 무시해서 그냥 html로 보여준다.
+- **URL 링크 표현식**
+    - `th:href="@{/css/bootstrap.min.css}"` 링크는 이런 식으로 쓴다.
+    - `th:onclick="|location.href='@{/basic/items/add}'|"` 클릭할 때의 링크
+- 테이블 부분 - **반복 출력, 변수 표현식, URL 링크 표현식2**
+    - `th:each="item : ${items}"`
+        - items 컬렉션 데이터가 item 변수에 하나씩 포함
+    - `th:text="${item.id}"` id 보여지도록 하기, 프로퍼티 접근법을 사용( `item.getPrice()` )
+    - `th:href="@{/basic/items/{itemId}(itemId=${item.id})}"` 링크는 basic/items/1 이런 식으로 가도록 만들기
+        - 쿼리 파라미터도 생성함
+        - 예) `th:href="@{/basic/items/{itemId}(itemId=${item.id}, query='test')}"` → 생성 링크: `http://localhost:8080/basic/items/1?query=test`
+- **리터럴 대체 문법**
+    - `|...|`
+    - 타임리프에서 문자와 표현식 등은 분리되어 있기 때문에 더해서 사용해야함 `<span th:text="'Welcome to our application, ' + ${user.name} + '!'">`
+    - 리터럴 대체 문법을 사용하면, 더하기 없이 편리하게 사용 가능
+    `<span th:text="|Welcome to our application, ${user.name}!|">`
+
+- `@{/items/edit/{itemId}(itemId=${item.id})}` vs `@{|/items/edit/${item.id}|}`
+    
+    | 방식 | 결과 예시 | pathVariable |  |
+    | --- | --- | --- | --- |
+    | `@{/items/edit/{itemId}(itemId=${item.id})}` | /items/edit/10 | 가능 | 권장! |
+    | `@{\|/items/edit/\${item.id}\|}` | /items/edit/10 | 그냥 문자열 치환, PathVariable 아님 | x |
+
+## 상품 상세
+
+`컨트롤러` 에 코드 추가
+
+```java
+    @GetMapping("/{itemId}")
+    public String item(@PathVariable long itemId, Model model) {
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "basic/item";
+    }
+```
+
+- `PathVariable` 로 넘어온 상품ID로 상품을 조회하고, 모델에 담아둔다. 그리고 뷰 템플릿을 호출
+- `model.addAttribute("키", 값);`  → 모델에 데이터 저장
+
+- **@RequestParam vs @PathVariable 차이**
+    
+    
+    | 방식 | 사용 예시 | 요청 예시 | 특징 |
+    | --- | --- | --- | --- |
+    | @RequestParam | ?id=1 | GET /members?id=1 | URL 뒤에 붙는 **쿼리 파라미터** |
+    | @PathVariable | /1 | GET /members/1 | **URL 경로에 포함된 값** |
+
+`templates/basic/item.html` 원래 html에서 수정되는 부분만
+
+- `<html xmlns:th="http://www.thymeleaf.org">`
+- `th:href="@{/css/bootstrap.min.css}"`
+- value
+    - `th:value="${item.id}"`
+    - `th:value="${item.itemName}"`
+    - `th:value="${item.price}"`
+    - `th:value="${item.quantity}"`
+- 상품 수정, 목록으로 링크
+    - `th:onclick="|location.href='@{/basic/items/{itemId}/edit(itemId=${item.id})}'|"`
+    - `th:onclick="|location.href='@{/basic/items}'|"`
+
+## 상품 등록 폼
+
+`컨트롤러` 수정
+
+```java
+    @GetMapping("/add")
+    public String addForm() {
+        return "basic/addForm";
+    }
+```
+
+`addForm.html`
+
+- 상품 등록 - `<form action="item.html" th:action method="post">`
+    - `th:action="/basic/items/add"` 인데 동일한 url(메서드가 다름)이라서 `th:action` 으로 쓸 수 있음
+- 취소 - `th:onclick="|location.href='@{/basic/items}'|"`
+
+## 상품 등록 처리 - @ModelAttribute
+
+폼에서 전달된 데이터로 상품을 등록
+
+데이터 전달 방식
+
+- **POST - HTML Form**
+    - `content-type: application/x-www-form-urlencoded`
+    - 메시지 바디에 쿼리 파리미터 형식으로 전달 `itemName=itemA&price=10000&quantity=10`
+
+### @RequestParam
+
+쿼리 파라미터 형식이므로 @RequestParam 사용
+
+`컨트롤러`
+
+```java
+  	@PostMapping("/add")
+    public String addItemV1(
+            @RequestParam String itemName,
+            @RequestParam int price,
+            @RequestParam Integer quantity,
+            Model model) {
+
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+
+        itemRepository.save(item);
+        model.addAttribute("item", item);
+
+        return "basic/item";
+    }
+```
+
+### @ModelAttribute
+
+`컨트롤러`
+
+```java
+    @PostMapping("/add")
+    public String addItemV2(@ModelAttribute("item") Item item, Model model) {
+
+        itemRepository.save(item);
+
+        return "basic/item";
+    }
+```
+
+- 요청 파라미터의 값을 프로퍼티 접근법(.setXXX)로 입력해 줌.
+- `Model model` 도 필요없음
+- `*model*.*addAttribute*("item", *item*);` 도 자동으로 추가되어 있음.
+- `@ModelAttribute` 이렇게 이름 없이 쓰면 클래스 명을 첫글자를 소문자로 바꾼 값을 담아 줌. `Item` 이니까 → `item` 으로 디폴트 값으로 들어감.
+- `@ModelAttribute` 도 생략가능 (근데 굳이..)
+- 그래서 이렇게 까지 줄어들 수 있다.
+    
+    ```java
+        @PostMapping("/add")
+        public String addItemV4(Item item) {
+    
+            itemRepository.save(item);
+    
+            return "basic/item";
+        }
+    ```
+    
+
+## 상품 수정
+
+`컨트롤러`
+
+```java
+    @GetMapping("/{itemId}/edit")
+    public String editForm(@PathVariable Long itemId, Model model) {
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "basic/editForm";
+    }
+
+    @PostMapping("/{itemId}/edit")
+    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
+        itemRepository.update(itemId, item);
+        return "redirect:/basic/items/{itemId}";
+    }
+```
+
+- GET `/items/{itemId}/edit` : 상품 수정 폼
+- POST `/items/{itemId}/edit` : 상품 수정 처리
+- 리다이렉트 `redirect:/...`  - 뷰 템플릿을 호출하는 대신에 상품 상세 화면으로 이동하도록 리다이렉트를 호출
+
+→ 왜 등록할 때는 리다이렉트 안하고 수정할 때는 했지??
+
+## PRG Post/Redirect/Get
+
+상품 등록시 중복처리 문제 (상품 등록 후 새로고침 하면 중복처리 됨)
+
+- GET /add → POST /add 여기서 새로고침(마지막으로 하는 행위를 다시 함) 하면 POST /add 가 또 일어남.
+
+`컨트롤러` 수정
+
+```java
+    @PostMapping("/add")
+    public String addItemV5(Item item) {
+        itemRepository.save(item);
+        return "redirect:/basic/items/" + item.getId();
+    }
+```
+
+### **POST, Redirect GET**
+
+- `GET /add` → `POST /add` → `Redirect /item/{id}` → `GET /item/{id}` 새로고침하면 `GET /item/{id}` 가 일어남.
+
+- add를 하면
+    - add - 302 location:http://localhost:8080/basic/items/3
+    - 3 - 200
+    - 새로고침
+    - 3 - 200
+    
+
+이런 문제 해결 방식을 `PRG Post/Redirect/Get`이라고 함.
+
+근데! `return "redirect:/basic/items/" + *item*.*getId*();` redirect에서 `+item.getId()` 처럼 URL에 변수를 더해서 사용하는 것은 URL 인코딩이 안되기 때문에 위험하다. → RedirectAttributes
+
+## RedirectAttributes
+
+사용자 입장에서 저장이 되었는지 확신이 안든다. → “저장되었습니다” 메시지 보여달라는 요구사항이 올 수 있다.
+
+```java
+    @PostMapping("/add")
+    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/basic/items/{itemId}"; // status 는 쿼리 파라미터 형식으로 들어감 ?status=true
+    }
+```
+
+- `RedirectAttributes` 를 사용하면 URL 인코딩도 해주고, `pathVariable` , 쿼리 파라미터까지 처리해준다.
+    - `redirect:/basic/items/{itemId}`
+        - pathVariable 바인딩: `{itemId}`
+        - 나머지는 쿼리 파라미터로 처리: `?status=true`
+
+item.html 가서 ‘저장 완료’ 표시 
+
+```java
+<div class="container">
+    <div class="py-5 text-center"><h2>상품 상세</h2>
+    </div>
+    
+    <!-- 추가 -->
+    <h2 th:if="${param.status}" th:text="'저장 완료'"></h2>
+```
+
+- `th:if` : 해당 조건이 참이면 실행
+- `${param.status}` : 타임리프에서 **쿼리 파라미터**를 편리하게 조회하는 기능 (너무 많이 쓰니까 기능을 넣은 거지)

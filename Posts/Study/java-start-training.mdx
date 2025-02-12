@@ -1,0 +1,362 @@
+---
+title: "[Java 기초] 훈련"
+description: "연습3, Scanner 반복 예제1, 홀수 짝수 구분하는 예제, 변수 값 교환, 두수 사이의 값들, 문제풀이 3, 상품 구매"
+date: "2025.01.07"
+filter: ["Java"]
+order: 2
+---
+
+<aside>
+#### 참고
+인프런 강의
+김영한의 자바 입문(무료 강의) 중
+https://www.inflearn.com/course/%EA%B9%80%EC%98%81%ED%95%9C%EC%9D%98-%EC%9E%90%EB%B0%94-%EC%9E%85%EB%AC%B8
+</aside>
+
+## 훈련
+
+- 변수, 연산자, 조건문, 반복문을 연습
+
+```java
+package scanner;
+
+import java.util.Scanner;
+
+public class Scanner1 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("문자열을 입력하세요: ");
+        String str = scanner.nextLine(); // 입력을 String으로 가져온다.
+        System.out.println("입력한 문자열: " + str);
+        
+        System.out.print("정수를 입력하세요: ");
+        int intValue = scanner.nextInt();
+        System.out.println("입력한 정수: " + intValue);
+    }
+}
+```
+
+- `Scanner scanner = new Scanner(System.in);`
+    - new로 스캐너를 만든다.
+    - Scanner는 System.in을 사용해 사용자의 입력을 편리하게 받도록 도와준다.
+    - scanner 변수로 선언해서 사용한다.
+- print() vs println()
+    - 엔터는 `\n` 이라는 문자를 쓰는 것
+
+### 연습 3
+
+숫자 2개 받아서 더 큰 숫자를 출력, 같으면 같다고 출력
+
+> 내가 작성해봄.
+
+```java
+import java.util.Scanner;
+
+public class Scanner3 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("숫자1을 입력하세요: ");
+        int num1 = scanner.nextInt();
+
+        System.out.print("숫자2를 입력하세요: ");
+        int num2 = scanner.nextInt();
+
+        if (num1 == num2) {
+            System.out.println("두 숫자는 같습니다.");
+        } else if (num1 > num2) {
+            System.out.println("더 큰 숫자는 : " + num1);
+        } else {
+            System.out.println("더 큰 숫자는 : " + num2);
+        }
+
+    }
+}
+```
+
+### Scanner 반복 예제1
+
+```java
+import java.util.Scanner;
+
+public class ScannerWhile1 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("문자열을 입력하세요(exit: 종료): ");
+            String str = scanner.nextLine();
+
+            if (str.equals("exit")) {
+                System.out.println("프로그램을 종료합니다.");
+                break;
+            }
+            System.out.println("입력한 문자열: " + str);
+        }
+    }
+}
+```
+
+### 홀수 짝수 구분하는 예제
+
+```java
+import java.util.Scanner;
+
+public class ScannerEx2 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("정수를 입력하세요: ");
+        int num = scanner.nextInt();
+
+        if (num % 2 == 0) {
+            String str = "짝수";
+            System.out.println("입력한 숫자 " + num +"는 " + str + "입니다.");
+        } else {
+            String str = "홀수";
+            System.out.println("입력한 숫자 " + num +"는 " + str + "입니다.");
+        }
+    }
+}
+```
+
+### 변수 값 교환
+
+```java
+public class ScannerEx5 {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 20;
+        int temp;
+
+        temp = a;
+        a = b;
+        b = temp;
+
+        System.out.println("a = " + a);
+        System.out.println("b = " + b);
+    }
+}
+```
+
+### 두수 사이의 값들
+
+```java
+숫자1을 입력하세요: 5
+숫자2를 입력하세요: 7
+두 숫자 사이의 모든 정수:5,6,7
+```
+
+```java
+import java.util.Scanner;
+
+public class ScannerEx5 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("숫자1을 입력하세요: ");
+        int num1 = scanner.nextInt();
+
+        System.out.print("숫자2를 입력하세요: ");
+        int num2 = scanner.nextInt();
+
+        if (num1 > num2) {
+            int temp = num1;
+            num1 = num2;
+            num2 = temp;
+        }
+
+        System.out.print("두 숫자 사이의 모든 정수:");
+        for (int i = num1; i <= num2; i++) {
+            System.out.print(i);
+            if (i != num2) {
+                System.out.print(",");
+            }
+        }
+    }
+}
+```
+
+### 문제풀이 3
+
+이렇게 풀었더니
+
+```java
+public class ScannerEx7 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("상품의 가격을 입력하세요 (-1을 입력하면 종료): ");
+            int price = scanner.nextInt();
+            System.out.print("구매하려는 수량을 입력하세요: ");
+            int num = scanner.nextInt();
+
+            System.out.println("총 비용: " + price*num);
+            if (price == -1) {
+                System.out.println("프로그램을 종료합니다.");
+                break;
+            }
+        }
+
+    }
+}
+```
+
+```java
+상품의 가격을 입력하세요 (-1을 입력하면 종료): 1000
+구매하려는 수량을 입력하세요: 3
+총 비용: 3000
+상품의 가격을 입력하세요 (-1을 입력하면 종료): -1
+구매하려는 수량을 입력하세요: 3
+총 비용: -3
+프로그램을 종료합니다.
+```
+
+이렇게 된다. 코드의 순서가 중요함.
+
+```java
+while (true) {
+      System.out.print("상품의 가격을 입력하세요 (-1을 입력하면 종료): ");
+      int price = scanner.nextInt();
+
+      if (price == -1) {
+          System.out.println("프로그램을 종료합니다.");
+          break;
+      }
+
+      System.out.print("구매하려는 수량을 입력하세요: ");
+      int num = scanner.nextInt();
+
+      System.out.println("총 비용: " + price*num);
+  }
+```
+
+잘 나옴.
+
+```java
+상품의 가격을 입력하세요 (-1을 입력하면 종료): 1000
+구매하려는 수량을 입력하세요: 3
+총 비용: 3000
+상품의 가격을 입력하세요 (-1을 입력하면 종료): -1
+프로그램을 종료합니다.
+```
+
+**Tip**
+
+```java
+while ((input == scanner.nextInt()) != -1) {
+
+}
+```
+
+이렇게 하면 if 안 써도 종료가 된다.
+
+### 상품 구매
+
+```java
+import java.util.Scanner;
+
+public class ScannerEx9 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int total = 0;
+
+        while(true) {
+            System.out.println("1: 상품 입력, 2: 결제, 3: 프로그램 종료");
+            int option = scanner.nextInt();
+
+            if (option == 1) {
+                scanner.nextLine(); // 엔터 해결을 위해
+                System.out.print("상품명을 입력하세요: ");
+                String name = scanner.nextLine();
+                System.out.print("상품 가격을 입력하세요: ");
+                int price = scanner.nextInt();
+                System.out.print("구매 수량을 입력하세요: ");
+                int quantity = scanner.nextInt();
+
+                total = total + price * quantity;
+
+                System.out.println("상품명: " + name + " 가격: " + price + " 수량: " + quantity + " 합계: " + total);
+            } else if (option == 2) {
+                System.out.println("총 비용: " + total);
+                total = 0;
+            } else if (option == 3) {
+                System.out.println("프로그램 종료");
+                break;
+            } else {
+                System.out.println("옵션 에러");
+            }
+
+        }
+    }
+}
+
+```
+
+- switch 써서 해보기
+    
+    continue와 break의 적절한 사용*
+    
+    ```java
+    import java.util.Scanner;
+    
+    public class ScannerEx9_1 {
+        public static void main(String[] args) {
+            Scanner scanner = new Scanner(System.in);
+            int total = 0;
+    
+            while(true) {
+                System.out.println("1: 상품 입력, 2: 결제, 3: 프로그램 종료");
+                int option = scanner.nextInt();
+    
+                switch (option) {
+                    case 1:
+                        scanner.nextLine(); // 엔터 해결을 위해
+                        System.out.print("상품명을 입력하세요: ");
+                        String name = scanner.nextLine();
+                        System.out.print("상품 가격을 입력하세요: ");
+                        int price = scanner.nextInt();
+                        System.out.print("구매 수량을 입력하세요: ");
+                        int quantity = scanner.nextInt();
+    
+                        total = total + price * quantity;
+    
+                        System.out.println("상품명: " + name + " 가격: " + price + " 수량: " + quantity + " 합계: " + total);
+                        continue;
+                    case 2:
+                        System.out.println("총 비용: " + total);
+                        total = 0;
+                        continue;
+                    case 3:
+                        System.out.println("프로그램 종료");
+                        break;
+                    default:
+                        System.out.println("옵션 에러");
+                }
+                break;
+            }
+        }
+    }
+    ```
+    
+
+> 결과
+
+```java
+1: 상품 입력, 2: 결제, 3: 프로그램 종료
+1
+상품명을 입력하세요: banana
+상품 가격을 입력하세요: 3000
+구매 수량을 입력하세요: 1
+상품명: banana 가격: 3000 수량: 1 합계: 3000
+1: 상품 입력, 2: 결제, 3: 프로그램 종료
+2
+총 비용: 3000
+1: 상품 입력, 2: 결제, 3: 프로그램 종료
+3
+프로그램 종료
+```
+
+끝.

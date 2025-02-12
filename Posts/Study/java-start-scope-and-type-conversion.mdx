@@ -1,0 +1,181 @@
+---
+title: "[Java 기초] 스코프와 형변환"
+description: "지역변수와 스코프, 스코프 존재의 이유?, 자동 형변환, 명시적 형변환, 계산과 형변환"
+date: "2025.01.07"
+filter: ["Java"]
+---
+
+<aside>
+#### 참고
+인프런 강의
+김영한의 자바 입문(무료 강의) 중
+https://www.inflearn.com/course/%EA%B9%80%EC%98%81%ED%95%9C%EC%9D%98-%EC%9E%90%EB%B0%94-%EC%9E%85%EB%AC%B8
+</aside>
+
+## 지역변수와 스코프
+
+지역변수 vs 멤버 변수(클래스 변수, 인스턴스 변수)
+
+- 특정 지역 `{코드블록}`내에서만 사용 가능
+
+
+```java
+public class Scope1 {
+    public static void main(String[] args) {
+        int m = 10;
+        if (true) {
+            int x = 20;
+            System.out.println("if m = " + m);
+            System.out.println("if x = " + x);
+        }
+        System.out.println("main m = " + m);
+        System.out.println("main x = " + **x**);
+    }
+}
+```
+
+`Cannot resolve symbol 'x’`
+
+코드 블록 내에서만 생존
+
+## 스코프 존재의 이유?
+
+```java
+public class Scope3_1 {
+    public static void main(String[] args) {
+        int m = 10;
+        int temp = 0;
+        if (m > 0) {
+            temp = m * 2;
+            System.out.println("temp = " + temp);
+        }
+        System.out.println("m = " + m);
+    }
+}
+```
+
+- **메모리 낭비**
+    
+    `int temp = 0;` 이거는 if 코드 블록 안에서만 필요한데 main 코드 블록이 끝날 때까지 메모리에 유지된다. 
+    
+- **코드 복잡성 증가**
+    
+    if 가 끝나면 temp를 잊어도 되지만 스코프가 불필요하게 넓으면 계속 신경 써야 하기 때문에 유지보수가 어렵다.
+    
+
+## 형변환
+
+작은 범위에서 큰 범위로 값을 넣을 수 있다
+
+- int < long < double
+
+큰 범위에서 작은 범위는 문제 발생할 수도
+
+- 소수점 버림
+- 오버플로우
+
+```java
+public class Casting1 {
+    public static void main(String[] args) {
+        int intValue = 10;
+        long longValue;
+        double doubleValue;
+
+        longValue = intValue;
+        System.out.println("longValue = " + longValue);
+
+        doubleValue = intValue;
+        System.out.println("doubleValue = " + doubleValue);
+
+        doubleValue = 20L;
+        System.out.println("doubleValue2 = " + doubleValue);
+    }
+}
+```
+
+```java
+longValue = 10
+doubleValue = 10.0
+doubleValue2 = 20.0
+```
+
+### 자동 형변환 = 묵시적 형변환
+
+```java
+longValue = (long) intValue;
+```
+
+이런식으로 써줘야 하지만 자동으로 해주기 때문에 생략함.
+
+### 명시적 형변환(casting)
+
+큰범위 → 작은범위
+
+자동 형변환과 다르게 `(형)`을 명시적으로 써줘야 한다.
+
+```java
+public class Casting2 {
+    public static void main(String[] args) {
+        double doubleValue = 1.5;
+        int intValue = 0;
+
+        intValue = (int) doubleValue;
+        System.out.println(intValue);
+    }
+}
+```
+
+```java
+1
+```
+
+1.5가 1이 됨.
+
+**초과범위**
+
+- 오버플로우 된다.
+
+```java
+maxIntOver = 2147483648L; // int 최고값 + 1
+intValue = (int)maxIntOver;
+
+intValue = -2147483648;
+```
+
+- 시계를 생각해 보면 61분은 1분으로 보이는 그런 것. 한바퀴 돌아서 - 작은 수가 된다.
+- 근데 오버플로우가 발생하는 것 자체가 문제다.
+- 이런 문제가 생기면 안된다. `int` → `long` 해야 한다.
+
+### 계산과 형변환
+
+```java
+package casting;
+
+public class Casting4 {
+    public static void main(String[] args) {
+        int div1 = 3 / 2;
+        System.out.println("div1 = " + div1); // 1
+
+        double div2 = 3 / 2;
+        System.out.println("div2 = " + div2); // 1.0
+
+        double div3 = 3.0 / 2;
+        System.out.println("div3 = " + div3); // 1.5
+
+        double div4 = (double) 3 / 2;
+        System.out.println("div4 = " + div4); // 1.5
+    }
+}
+
+```
+
+- 같은 타입의 계산은 같은 타입의 결과를 낸다
+    - int + int 는 int, double + double 은 double
+- 다른 타입의 계싼은 큰 범위로 자동 형변환 된다.
+    - int + long 은 long + long
+    - int + double 은 double + double
+
+*div4 쪽에 (double)3 / 2 는 double/int가 됨.
+
+
+끝.
