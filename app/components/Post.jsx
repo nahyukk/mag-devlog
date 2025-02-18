@@ -4,6 +4,11 @@ import rehypeHighlight from "rehype-highlight";
 import "@/styles/highlight.js/atelier-estuary.min.css";
 
 const components = {
+	a: (props) => (
+    <a {...props} target="_blank" rel="noopener noreferrer">
+      {props.children}
+    </a>
+  ),
   ul: (props) => (
     <ul
       style={{

@@ -14,6 +14,7 @@
 	--o-main-text-color: #FFFFFF;
 	--table-header-color: #f1f1f1;
 	--table-border-color: #BCD1CD;
+	--hr-border-color: ;
 }
 
 .dark {
@@ -113,7 +114,7 @@ a {
 }
 
 p {
-	font-size: 1remp;
+	font-size: 1rem;
 	line-height: 1.6;
 }
 
@@ -176,4 +177,13 @@ table caption {
 	font-weight: bold;
 	margin-bottom: 10px;
 	text-align: left;
+}
+
+hr {
+	width: 100%;
+	align-self: center;
+	border: none;
+	border-top: 1.5px solid var(--table-border-color);
+	opacity: 0.4;
+	margin: 15px 0;
 }
