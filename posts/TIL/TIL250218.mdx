@@ -1,0 +1,203 @@
+---
+title: "TIL 250218"
+description: "스프링 mvc2-타임리프, 알고리즘 2문제, 게시판 구현(컨트롤러), OS-운영체제"
+filter: "🧣2025.02"
+---
+
+
+
+# What I did
+
+스프링 mvc2 타임리프 기본
+
+알고리즘 2문제
+
+게시판 구현(컨트롤러 부분)
+
+OS - 운영체제의 큰그림
+
+# Did well / Need to improve
+
+- 게시판 구현은 생각보다 많이 못했지만 많은 것을 배움
+- 계획한 것 다함
+
+# 배운점
+
+## 스프링 mvc2 강의
+
+[타임리프](https://www.notion.so/19e7ef37c24380babef6f59822de146b?pvs=21) 
+
+타임리프 특징
+
+텍스트 text, utext , unescape
+
+변수 SpringEL
+
+기본 객체, 유틸리티 객체, 날짜
+
+url
+
+리터럴
+
+연산
+
+속성값 설정
+
+반복
+
+조건부 평가
+
+주석
+
+블록
+
+자바스크립트 인라인
+
+템플릿 조각과 레이아웃
+
+## 알고리즘
+
+2231, 2292
+
+- 생성자 구하기
+    - `N-(9*자리수)` 부터 구해볼 것
+        - 9*자리수가 최대값이므로, `N-(9*자리수)`는 최소값이 됨.
+        - N이 1이면 음수가 되니 `Math.max(1, N-(9*자리수)`로 해야한다.
+- 여러 자리 숫자를 하나씩 나누는 방법
+    - 스트링으로 변환 후 나누기
+    - `String str = String.valueOf(num);`
+- 각 자리수 뽑아내기
+    
+    ```java
+    while (temp > 0) {
+        sum_m += temp % 10; // 1의 자리 더하기
+        temp /= 10;         // 1의 자리 제거
+    }
+    ```
+    
+- 범위 잘 볼 것
+- 차근히 풀면 다 해결된다.
+
+## 게시판 구현하기
+
+[게시판 구현하기](https://www.notion.so/19d7ef37c24380b5a079d7d8341557a0?pvs=21) 
+
+PostController
+
+- 게시글 단건 조회
+- 게시글 수정
+- 게시글 삭제
+
+CommentController
+
+- 댓글 등록
+- 댓글 조회
+- 댓글 수정
+- 댓글 삭제
+    - 게시글 삭제시 댓글 삭제
+
+**게시글 단건 조회**
+
+```java
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<Post> getPost(@PathVariable Long id) {
+        Post post = postService.getPost(id);
+        return ResponseEntity.ok(post);
+    }
+```
+
+- `LazyInitializationException`(지연 로딩 예외) 에러가 난다.
+    - 해결 방법 - Post를 불러올 때 comments도 같이 로딩되도록 함.
+        - `@OneToMany` → 기본값 `LAZY` (지연 로딩)
+        - `@ManyToOne` → 기본값 `EAGER` (즉시 로딩)
+    
+    <aside>
+    🆕
+    
+    `fetch = FetchType.EAGER`
+    
+    - **즉시 로딩** → `Post`를 조회할 때 `comments`도 함께 가져옴
+    - **성능 주의** → 불필요한 데이터 로드 가능
+    </aside>
+    
+    - 도메인 코드 수정(추가)
+    
+    ```java
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "post", fetch = FetchType.EAGER)
+        private List<Comment> comments = new ArrayList<>();
+    ```
+    
+
+⇒ 바로 해결 됨. 원래는 포스트 리스트를 불러도 comments가 즉시 로딩 되어서 성능이 저하되지만, 위에서 포스트 리스트를 부를 때 id와 title만 불러오도록 했기 때문에 해당이 안된다.
+
+<aside>
+🆕
+
+`*@PathVariable*`
+
+- 경로 변수 넣어서 url 반환
+</aside>
+
+<aside>
+🆕
+
+`@RequestBody`
+
+- 클라이언트가 보낸 JSON 데이터를 Java 객체로 변환
+</aside>
+
+- `Post` 안에 `comments` 리스트가 있고, `Comment` 안에 다시 `post`가 있어서 계속 반복
+    - DTO 사용
+    - @JsonIgnore 추가(Comment에 post 필드 json 변환 제외)
+
+<aside>
+🆕
+
+`Stream()`
+
+- 리스트를 하나씩 꺼내면서 필터링, 변환 등 쉽게 젹용
+
+`Collect(Collectors.toList())`
+
+- 필터링된 댓글을 다시 리스트 형태로 변환
+</aside>
+
+- 엔티티에 필드가 조금 씩 다른 여러 생성자를 만들어도 괜찮다.
+- post를 삭제했는데 deleted는 바뀌었지만 단건 조회시 나옴
+    - ✅ `findByIdAndDeletedFalse()` 를 레포에 추가 한다.
+    - `.filter(p -> !p.getDeleted())` 이런 식으로 필터링도 가능한데 불필요한 데이터 조회가 있을 수 있다.
+
+<aside>
+❓
+
+### **이것이 궁금하다**
+
+> 이거 soft delete되는 데이터 있잖아 이거를 숨김 처리를 어디에서 하는가?? 나는 지금 서비스에서 필터링 하거나 레포에서 아예 필터링 하거나, 컨트롤러 단에서 안보이게 했잖아? 근데 타임리프 하면서 안보이게 할 수도 있지 않을까? 일반적인 상용 서비스에서는 어떻게 하는가?
+> 
+
+📌 **서비스에서는 주로 "DB 조회 시점"에 삭제된 데이터 제외!**
+
+- **방법 1:** **Repository에서 필터링 (`findByDeletedFalse()`)** → 가장 일반적 ✅
+- **방법 2:** **Service에서 `.filter()`로 제외** → 필요할 때만 필터링 ✅
+- 방법 3: Controller에서 응답 전에 필터링 → 비추천 ❌ (비효율적)
+- 방법 4: Thymeleaf에서 숨김 처리 → UI에서만 숨길 뿐, 보안 위험 ❌
+
+→ 다행이다. 
+
+</aside>
+
+## OS
+
+[혼공컴운 - OS](https://www.notion.so/OS-19a7ef37c24380b4a076f53b590a13b4?pvs=21) 
+
+- 커널
+- 이중모드
+    - 사용자 모드
+    - 커널 모드
+- 시스템 호출
+- 운영체제 서비스
+    - 프로세스 관리
+    - 자원 접근 및 할당
+    - 파일 시스템 관리
+
+		끝.
