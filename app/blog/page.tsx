@@ -7,7 +7,7 @@ import matter from "gray-matter";
 import BlogFilteredList from "@/components/Blog/BlogFilteredList";
 
 export const metadata = {
-  title: "Mag's Blog",
+  title: "Blog | Mag's Devlog",
 };
 
 interface Post {
@@ -71,7 +71,7 @@ export default async function Blog() {
         <header>
           <Header
             title="Blog"
-            description="새로 배운 내용을 정리합니다."
+            description="새로 배운 내용을 정리합니다"
           />
         </header>
         <section

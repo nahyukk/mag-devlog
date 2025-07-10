@@ -6,7 +6,7 @@ import matter from "gray-matter";
 import TILList from "./components/TIL/TILList";
 
 export const metadata = {
-  title: "Mag's TIL & Study",
+  title: "Home | Mag's Devlog",
 };
 
 const getTILPosts = async () => {
@@ -73,7 +73,7 @@ export default async function Home() {
       <section className={styles.mainContainer}>
         <section className={styles.introduction}>
           <div className={styles.introHeader}>
-            <h1>Mag's devlog</h1>
+            <h1>Mag's Devlog</h1>
             <p className={styles.introMyself}>
               안녕하세요! 🙌
               <br />
