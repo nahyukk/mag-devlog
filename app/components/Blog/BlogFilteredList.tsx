@@ -96,6 +96,7 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
                   cursor: "pointer",
                   fontFamily: "var(--font-roboto-mono)",
                   fontSize: "16px",
+                  minHeight: "38px",
                 }}
               >
                 <div
