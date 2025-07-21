@@ -34,34 +34,59 @@ const Navbar = () => {
               isDarkMode={isDarkMode}
             />
           ) : (
-            <>
-              <div className={styles.navItem}>
+            <ul className={styles.navList}>
+              {/* <li className={styles.navItem}>
                 <Link
                   href="/TIL"
                   className={`${currentPath === "/TIL" ? styles.active : ""}`}
                 >
                   TIL
                 </Link>
-              </div>
-              <div className={styles.navItem}>
+              </li>
+              <li className={styles.navItem}>
                 <Link
                   href="/Study"
                   className={`${currentPath === "/Study" ? styles.active : ""}`}
                 >
                   STUDY
                 </Link>
-              </div>
-              {/* <div className={styles.navItem}>
+              </li> */}
+              <li className={styles.navItem}>
                 <Link
-                  href="/Projects"
-                  className={`${
-                    currentPath === "/Projects" ? styles.active : ""
-                  }`}
+                  href="/blog"
+                  className={`${currentPath === "/blog" || currentPath.startsWith("/blog/") ? styles.active : ""
+                    }`}
+                >
+                  BLOG
+                </Link>
+              </li>
+              <li className={styles.navItem}>
+                <Link
+                  href="/projects"
+                  className={`${currentPath === "/projects" || currentPath.startsWith("/projects/") ? styles.active : ""
+                    }`}
                 >
                   PROJECTS
                 </Link>
-              </div> */}
-            </>
+              </li>
+              <li className={styles.navItem}>
+                <Link
+                  href="/portfolio"
+                  className={`${currentPath === "/portfolio" ? styles.active : ""
+                    }`}
+                >
+                  PORTFOLIO
+                </Link>
+              </li>
+              <li className={styles.navItem}>
+                <Link
+                  href="/resume"
+                  className={`${currentPath === "/resume" ? styles.active : ""}`}
+                >
+                  RESUME
+                </Link>
+              </li>
+            </ul>
           )}
         </div>
         <div className={styles.navContainerRight}>
@@ -75,7 +100,7 @@ const Navbar = () => {
       </div>
       {isMobile && isMenuOpen && (
         <div className={styles.mobileMenu}>
-          <Link
+          {/* <Link
             href="/TIL"
             className={currentPath === "/TIL" ? styles.active : ""}
             onClick={toggleMenu}
@@ -88,12 +113,11 @@ const Navbar = () => {
             onClick={toggleMenu}
           >
             STUDY
+          </Link> */}
+          <Link href="/blog" onClick={toggleMenu}>
+            BLOG
           </Link>
-          <Link
-            href="/Projects"
-            className={currentPath === "/Projects" ? styles.active : ""}
-            onClick={toggleMenu}
-          >
+          <Link href="/projects" onClick={toggleMenu}>
             PROJECTS
           </Link>
         </div>
