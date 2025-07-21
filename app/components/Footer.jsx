@@ -28,9 +28,9 @@ const Footer = () => {
     return () => observer.disconnect();
   }, []);
 
-  const copyIcon = isDarkMode ? "/copy-icon.svg" : "/copy-white-icon.svg";
-  const emailIcon = isDarkMode ? "/email-white-icon.svg" : "/email-icon.svg";
-  const githubIcon = isDarkMode ? "/github-white-icon.svg" : "/github-icon.svg";
+  const copyIcon = isDarkMode ? "/icons/copy-icon.svg" : "/icons/copy-white-icon.svg";
+  const emailIcon = isDarkMode ? "/icons/email-white-icon.svg" : "/icons/email-icon.svg";
+  const githubIcon = isDarkMode ? "/icons/github-white-icon.svg" : "/icons/github-icon.svg";
 
   const email = "knahyuk@gmail.com";
 

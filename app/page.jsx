@@ -1,12 +1,12 @@
 import styles from "./page.module.css";
-import StudyList from "./components/Study/StudyList";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import TILList from "./components/TIL/TILList";
+import BlogList from "./components/Blog/BlogList";
 
 export const metadata = {
-  title: "Mag's TIL & Study",
+  title: "Home | Mag's Devlog",
 };
 
 const getTILPosts = async () => {
@@ -28,8 +28,8 @@ const getTILPosts = async () => {
   return posts;
 };
 
-const getStudyPosts = async () => {
-  const postsDirectory = path.join(process.cwd(), "posts", "Study");
+const getBlogPosts = async () => {
+  const postsDirectory = path.join(process.cwd(), "posts", "Blog");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = filenames.map((filename) => {
@@ -60,7 +60,7 @@ const getStudyPosts = async () => {
 };
 
 export default async function Home() {
-  const posts = await getStudyPosts();
+  const posts = await getBlogPosts();
   const latestPosts = posts
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
@@ -69,43 +69,33 @@ export default async function Home() {
   const randomTils = tils.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   return (
-    <div className={styles.mainBody}>
-      <div className={styles.mainContainer}>
-        <div className={styles.introduction}>
-          <div className={styles.introLeft}>
-            <h1>Mag's TIL & Study</h1>
+    <main className={styles.mainBody}>
+      <section className={styles.mainContainer}>
+        <section className={styles.introduction}>
+          <div className={styles.introHeader}>
+            <h1>Mag's Devlog</h1>
             <p className={styles.introMyself}>
+              안녕하세요! 🙌
               <br />
-              매일 조금씩 전진하는 개발자 Mag 입니다. <br />
+              기획과 사용자 경험을 바탕으로 로직을 설계하는 
               <br />
-              배운 것을 기록하고 정리하기 위해 노력합니다.
+              백엔드, 풀스택 개발자 Mag입니다.
+            </p>
+
+            <p className={styles.introMyself}>
+              이 블로그에는 프로젝트와 개발하면서 배운 것들을 담고 있습니다.
             </p>
           </div>
-          <div className={styles.introRight}>
-            {/* <Image
-              src="/keyboard-c.svg"
-              alt="compKeyboard"
-              width={120}
-              height={80}
-            />
-            <Image
-              src="/keyboard-p.svg"
-              alt="compKeyboard"
-              width={120}
-              height={80}
-              style={{ fill: "var(--primary-color)" }}
-            /> */}
-          </div>
-        </div>
-        <div className={styles.recentPosts}>
+        </section>
+        <section className={styles.recentPosts}>
           <h2>Recent Posts</h2>
-          <StudyList posts={latestPosts} />
-        </div>
-        <div className={styles.randomTIL}>
+          <BlogList posts={latestPosts} />
+        </section>
+        <section className={styles.randomTIL}>
           <h2>Random TIL</h2>
           <TILList posts={randomTils} />
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </main>
   );
 }
