@@ -9,21 +9,17 @@ export const metadata = {
   title: "Projects",
 };
 
-interface Params {
-  slug: string;
-}
-
 interface PageProps {
-  params: Params;
+  params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const slugs = await getAllProjectsSlugs();
+export const generateStaticParams = async (): Promise<{ slug: string }[]> => {
+  const slugs = getAllProjectsSlugs();
   return slugs.map((slug) => ({ slug }));
-}
+};
 
-export default async function ProjectPost({ params }: PageProps) {
-  const { slug } = params;
+export default async function BlogPost({ params }: PageProps) {
+  const { slug } = await params;
   const post = await getProjectPost(slug);
 
   if (!post) {
