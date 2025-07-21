@@ -137,6 +137,9 @@
   font-family: var(--font-roboto-mono);
   color: var(--sub-text-color);
   letter-spacing: -0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cardDate {
