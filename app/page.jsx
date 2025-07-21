@@ -1,9 +1,9 @@
 import styles from "./page.module.css";
-import StudyList from "./components/Study/StudyList";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import TILList from "./components/TIL/TILList";
+import BlogList from "./components/Blog/BlogList";
 
 export const metadata = {
   title: "Home | Mag's Devlog",
@@ -28,8 +28,8 @@ const getTILPosts = async () => {
   return posts;
 };
 
-const getStudyPosts = async () => {
-  const postsDirectory = path.join(process.cwd(), "posts", "Study");
+const getBlogPosts = async () => {
+  const postsDirectory = path.join(process.cwd(), "posts", "Blog");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = filenames.map((filename) => {
@@ -60,7 +60,7 @@ const getStudyPosts = async () => {
 };
 
 export default async function Home() {
-  const posts = await getStudyPosts();
+  const posts = await getBlogPosts();
   const latestPosts = posts
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
@@ -89,7 +89,7 @@ export default async function Home() {
         </section>
         <section className={styles.recentPosts}>
           <h2>Recent Posts</h2>
-          <StudyList posts={latestPosts} />
+          <BlogList posts={latestPosts} />
         </section>
         <section className={styles.randomTIL}>
           <h2>Random TIL</h2>
