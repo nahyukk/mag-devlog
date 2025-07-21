@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-export const getAllBlogSlugs = async () => {
+export const getAllBlogSlugs = () => {
   const postDir = path.join(process.cwd(), "posts", "Blog");
   const files = fs.readdirSync(postDir);
 
