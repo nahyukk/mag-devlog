@@ -141,6 +141,7 @@ code {
   color: var(--code-text-color);
   padding: 2px 5px;
   border-radius: 4px;
+  white-space: pre-wrap;
 }
 
 pre {
