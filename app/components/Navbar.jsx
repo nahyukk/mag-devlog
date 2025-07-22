@@ -69,7 +69,7 @@ const Navbar = () => {
                   PROJECTS
                 </Link>
               </li>
-              <li className={styles.navItem}>
+              {/* <li className={styles.navItem}>
                 <Link
                   href="/portfolio"
                   className={`${currentPath === "/portfolio" ? styles.active : ""
@@ -77,7 +77,7 @@ const Navbar = () => {
                 >
                   PORTFOLIO
                 </Link>
-              </li>
+              </li> */}
               <li className={styles.navItem}>
                 <Link
                   href="/resume"
@@ -119,6 +119,9 @@ const Navbar = () => {
           </Link>
           <Link href="/projects" onClick={toggleMenu}>
             PROJECTS
+          </Link>
+          <Link href="/resume" onClick={toggleMenu}>
+            RESUME
           </Link>
         </div>
       )}
