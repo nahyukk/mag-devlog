@@ -1,7 +1,6 @@
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  justify-items: start;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   width: 100%;
   max-width: 1080px;
