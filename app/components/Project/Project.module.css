@@ -41,6 +41,7 @@
   border-bottom: 3px solid var(--primary-color);
   display: inline-block;
   margin-bottom: 10px;
+  white-space: nowrap;
 }
 
 .description {
@@ -48,6 +49,14 @@
   color: var(--sub-text-color);
   ;
   white-space: pre-line;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  line-clamp: 3;
+  box-orient: vertical;
+  display: box;
 }
 
 @media (max-width: 693px) {
