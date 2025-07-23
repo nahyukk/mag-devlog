@@ -176,6 +176,17 @@
   align-self: flex-end;
 }
 
+.role {
+  font-size: 18px;
+  font-family: var(--font-roboto-mono);
+}
+
+.skills {
+  font-size: 14px;
+  font-family: var(--font-roboto-mono);
+  font-weight: lighter;
+}
+
 .footerContainer {
   position: relative;
   margin: 30px 0;

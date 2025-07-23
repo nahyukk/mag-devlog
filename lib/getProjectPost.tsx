@@ -6,6 +6,8 @@ interface ProjectPost {
   title: string;
   description: string;
   date: string;
+  role: string;
+  skills: string;
   imageUrl: string;
   content: string;
 }
@@ -24,6 +26,8 @@ const getProjectPost = async (slug: string): Promise<ProjectPost | null> => {
     title: data.title,
     description: data.description,
     date: data.date,
+    role: data.role,
+    skills: data.skills,
     imageUrl: data.imageUrl ?? "",
     content,
   };

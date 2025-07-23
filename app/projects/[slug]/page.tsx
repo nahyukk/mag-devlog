@@ -42,6 +42,27 @@ export default async function BlogPost({ params }: PageProps) {
           >
             <h3 className={styles.description}>{post.description}</h3>
             <p className={styles.date}>{post.date}</p>
+            <hr
+              style={{
+                width: "10%",
+                borderTop: "2px solid var(--primary-color)",
+                opacity: 1,
+                alignSelf: "flex-start",
+                margin: "20px 0",
+              }}
+            />
+            <p className={styles.role}>
+              {post.role.split(', ').map((part, idx) => {
+                const shouldBold = ['Backend', 'Server'].includes(part.trim());
+                return (
+                  <span key={idx}>
+                    {shouldBold ? <strong>{part}</strong> : part}
+                    {idx !== post.role.split(', ').length - 1 && ', '}
+                  </span>
+                );
+              })}
+            </p>
+            <p className={styles.skills}>{post.skills}</p>
           </div>
         </header>
         <section>
