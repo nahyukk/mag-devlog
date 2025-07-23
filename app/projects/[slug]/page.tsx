@@ -6,7 +6,7 @@ import { getAllProjectsSlugs } from "../../../lib/getAllProjectsSlugs";
 import Post from "@/components/Post";
 
 export const metadata = {
-  title: "Projects",
+  title: "Projects | Mag's Devlog",
 };
 
 interface PageProps {
