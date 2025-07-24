@@ -6,7 +6,7 @@ import getBlogPost from "../../../lib/getBlogPost";
 import { getAllBlogSlugs } from "../../../lib/getAllBlogSlugs";
 
 export const metadata = {
-  title: "Mag's Blog",
+  title: "Blog | Mag's Devlog",
 };
 
 interface PageProps {

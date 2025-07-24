@@ -1,7 +1,6 @@
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  justify-items: start;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   width: 100%;
   max-width: 1080px;
@@ -19,6 +18,12 @@
   margin: 0 auto;
   overflow: hidden;
   transition: background-color 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .image {
@@ -27,6 +32,7 @@
   display: block;
   object-fit: cover;
   object-position: top;
+  height: 180px;
   max-height: 180px;
 }
 
@@ -40,6 +46,7 @@
   border-bottom: 3px solid var(--primary-color);
   display: inline-block;
   margin-bottom: 10px;
+  white-space: nowrap;
 }
 
 .description {
@@ -47,6 +54,14 @@
   color: var(--sub-text-color);
   ;
   white-space: pre-line;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  line-clamp: 3;
+  box-orient: vertical;
+  display: box;
 }
 
 @media (max-width: 693px) {
