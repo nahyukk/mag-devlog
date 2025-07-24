@@ -1,0 +1,175 @@
+---
+title: "ZARO - 자취의 로망"
+description: "자취 생활 커뮤니티 플랫폼"
+date: "2025-04-28 ~ 2025-06-20"
+role: "Project Lead, Backend, Server, Frontend"
+skills: "Spring Boot, Spring Security, JWT, Redis, AWS EC2, RDS(MySQL), S3, Docker, Jenkins, Nginx, ElasticSearch, Swagger, Next.js"
+imageUrl: "https://lh3.googleusercontent.com/d/10imtyhhIsQs9OimuBUqs0TP20leudi8N"
+filter: ["🧸Toy", "👬Team"]
+---
+
+## 서비스 알아보기
+<br />
+#### 🧾 개요
+ZARO는 자취생을 위한 후기, 팁, 질문을 나눌 수 있는 게시판 중심의 커뮤니티 서비스로, 게시판, 댓글, 프로필, 지도 등 다양한 기능을 제공합니다.
+
+<ThinShortLine />
+
+#### 🎯 배경
+1인 가구, 특히 자취인은 식사·소비·외로움 등 다양한 문제에 직면해 있지만, 이를 통합적으로 다루는 서비스는 없었습니다.   
+<img src="/projects/images/zaro/background.png" alt="ZARO Architecture" style={{ padding: "15px", justifyItems: "center", width: "60%", maxWidth: "600px" }} />
+우리는 자취 커뮤니티 2,000개 데이터를 분석하고 자취인의 삶을 살펴본 결과,
+**정보 접근성 부족, 실질적인 해결 어려움, 소통의 단절**이라는 문제를 발견했습니다.   
+이에 따라 **자취인의 경험과 연결을 하나의 플랫폼으로 통합하는 커뮤니티 서비스**를 기획하게 되었습니다.
+
+---
+
+#### ✨ 주요 기능
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/1pmW29yHBKhDTNpi0g9j6XwRuVK8z9FrL/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/zaro/자로-홈.png" width="100%" />
+        </a>
+        <small>홈</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/16Z_IYpoWcIHBMGp3Nt0-CHgYOeVV07Uc/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/zaro/자로-게시판.png" width="100%" />
+        </a>
+        <small>게시판</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/13v0C0ZnqT818ZXq4O9Ai3g9Encwr-E04/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/zaro/자로-게시글.png" width="100%" />
+        </a>
+        <small>게시글, 댓글</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1FSCnlL-55qL9zMw2iFfrhDXgIpZFgObO/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/zaro/자로-프로필.png" width="100%" />
+        </a>
+        <small>프로필 변경</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- **회원 기능**: 이메일 가입, 카카오 로그인, 비밀번호 재설정, 휴면/탈퇴 처리  
+- **커뮤니티**: 게시판, 댓글/좋아요/신고, 게시글 작성 및 검색 기능  
+- **프로필**: 내 활동(글/댓글/좋아요), D-day, 팔로우, 즐겨찾기 관리  
+- **장소 탐색**: 위치 기반 장소 조회, 메모 작성, 즐겨찾기 및 그룹 관리
+- **기타**: 실시간 알림, 인기 게시글/장소, 키워드·카테고리 검색
+
+---
+
+#### 🎥 시연 영상
+
+<iframe 
+  width="100%" 
+  height="400" 
+  src="https://www.youtube.com/embed/j5y-rUP4AF4?si=jCKf2_hLouTSJYsi" 
+  title="YouTube video player" 
+  frameBorder="0" 
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+  referrerPolicy="strict-origin-when-cross-origin" 
+  allowFullScreen>
+</iframe>
+[ZARO 서비스 시연 영상 유튜브에서 보기](https://www.youtube.com/watch?v=j5y-rUP4AF4)
+
+- 페르소나 3인 시나리오에 따른 시연
+
+<ThickLine />
+
+## 기술과 성장
+<br />
+#### 🗃️ ERD
+<a href="https://drive.google.com/file/d/1ArO8Eis6ju25X7EKrGGFNupTBaAREF14/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="/projects/images/zaro/erd.png" alt="ZARO ERD" />
+</a>
+
+- 사용자를 중심으로 기능과 책임이 명확하게 나뉘는 구조로 설계
+- 게시글, 댓글, 좋아요, 신고 등의 커뮤니티 기능
+- 팔로우, 알림 등 소셜 기능이 연결
+- 장소 즐겨찾기, 그룹과 장소는 위치 기반 탐색 기능 담당
+- 휴면 처리, 비밀번호 재설정, 이메일 인증 등은 별도 테이블로 관리해 운영과 보안을 분리
+
+<br />
+<ThinShortLine />
+
+#### 🏗️ 기술 아키텍처
+이미지 첨부 예정
+
+<br />
+<ThinShortLine />
+
+#### 📌 담당 기능 상세
+- 회원 및 인증 기능
+    - JWT + Spring Security 기반 인증 및 로그인, redis 블랙리스트 활용 로그아웃 로직 구현
+    - 회원가입, 이메일 인증 메일 전송 로직 구성
+    - 휴면 계정 전환, 휴면 예정 안내 메일 전송 자동화 및 탈퇴시 익명화 스케줄러 구현
+    - 카카오 OAuth 로그인 구현 및 사용자 정보 필터링
+- 서버 운영 및 배포 자동화
+    - Jenkins + Docker + Nginx 기반 CI/CD 파이프라인 구축
+    - Blue-Green 기반의 HotStandby 방식 무중단 배포 구조 구현
+    - EC2, 프록시 전환, S3 이미지 저장 등 실전 운영 환경 설계 및 적용
+- 공통 응답 및 예외 처리
+    - 공통 응답 포맷 분리 리팩토링 (ApiResponse에서 불필요한 응답 제외한 ErrorResponse 적용)
+    - 커스텀 예외 처리 시스템 구축 (GlobalExceptionHandler + ErrorCode Enum)
+    - 커스텀 Validator 구현을 통한 유효성 검사 및 책임 분리
+- 사용자 프로필 및 계정 관리
+    - 프로필 이미지, 닉네임 변경(14일 제한), 비밀번호 수정 등 계정 관리 기능 구현
+- 커뮤니티 기능 및 검색
+    - 댓글 CRUD API 구현
+    - ElasticSearch 연동 게시글 검색 API 구성
+    - S3 Presigned URL 기반 이미지 업로드 API 구현
+- 프론트엔드 백업
+    - 푸터 UI, 메인 배너 UI 구현
+    - 로그아웃 UI 구현 및 API 연결
+    - 회원 탈퇴 UI 구현 및 API 연결
+
+<br />
+<ThinShortLine />
+
+#### 🤼‍♀️ 기술적 도전
+
+**회원 상태 관리 정책 수립 및 인증 흐름 구성**
+- 회원 상태를 `PENDING`, `ACTIVE`, `DORMANT`, `DELETE`로 구분하여 Enum으로 정의
+- 인증 메일, 휴면 전환, 자동 삭제까지 스케줄러 기반 자동화 구현
+- UX 흐름 및 법적 요구사항을 함께 고려한 설계
+
+**LocalDateTime → OffsetDateTime 전환**
+- 서버는 UTC, 프론트는 KST 사용으로 인한 시간 불일치 문제 발생
+- OffsetDateTime 도입으로 시간대 명시적 제공
+
+**무중단 배포 파이프라인 설계 및 비용 최적화**
+- Jenkins 기반 배포 자동화: GitHub 연동, EC2 권한 분산
+- A/B 서버 구성으로 빌드 서버와 운영 서버 분리
+- 프록시 전환 스크립트 작성 및 t2.micro 기반으로 약 76% 비용 절감
+
+<br />
+<ThinShortLine />
+
+#### 🔍 협업 및 설계 경험
+- 프론트와 API 명세서 조율, 실제 UI 흐름 반영해 명세 수정
+- 예외 처리, 응답 포맷 통일 등 프론트 개발 효율 고려한 설계
+- API 문서화, 에러 코드 Enum 도입, 커스텀 Validator로 유지보수성 향상
+- 일부 프론트엔드 백업(푸터, 로그아웃 등)을 통해 전체 흐름 이해도 상승
+
+---
+
+#### 📚 Learning Point
+- 회원 상태 전환 흐름을 간결화 하기 위해 Enum 구조로 상태를 구분하고, 메일 전송부터 휴면 전환, 탈퇴, 삭제까지 스케줄러로 연결하여 자동화하였습니다. 운영 중 발생할 수 있는 예외 상황과 사용자 흐름까지 고려하여 설계하는 연습이 되었습니다.
+- 유효성 검사 등 예외처리를 서비스 레이어에 몰아두었을 때 구조가 복잡하고 성능도 우려되어, 커스텀 Validator를 도입하여 책임을 분리하였습니다. 성능 및 유지보수를 고려하는 코드를 구현하려 노력했습니다.
+- GlobalExceptionHandler와 ErrorCode Enum 구조를 도입해, 에러 응답을 통일하여 프론트에 예측 가능한 구조와 명확한 메시지를 제공하는 일관성을 유지하기 위한 고민을 했습니다.
+- 단순한 CRUD API도 사용자 흐름과 인터페이스를 고려하여 팀원과 충분히 논의하였고, 팀원들의 의견을 반영해 실제 사용성에 맞는 방식으로 구현하였습니다. 그 과정에서 단순 구현이 아닌 서비스로서의 API를 고민하는 경험을 할 수 있었습니다.
+- 프론트엔드 백업을 맡아 직접 구현한 API를 직접 연결하고 실제 UI 흐름에서 동작을 확인해보며, 풀스택 개발에 익숙해질 수 있었습니다.
+- 이 과정을 통해 단순히 동작하는 코드를 넘어서, 동료가 읽고 함께 개선할 수 있는 코드를 고민하며 커뮤니케이션 중심의 개발 경험을 쌓을 수 있었습니다. 또, 서비스 전체 흐름을 고려한 설계, 문제 대응, 그리고 협업까지 아우르는 실무 감각을 키우기 위해 노력했습니다.
+
+---
+
+**🔗 GitHub |** [even-zaro-back](https://github.com/your-repo-link)
+
+<ThickLine />
