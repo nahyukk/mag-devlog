@@ -1,0 +1,217 @@
+---
+title: "[Jenkins]🐳 Jenkins + Docker 기반 배포 자동화 & DooD 구성 트러블슈팅"
+description: "Jenkins 컨테이너 기반으로 Docker를 제어하는 자동화 배포 환경을 구축하며 겪었던 삽질과 해결 과정을 정리합니다."
+date: "2025.05.30"
+filter: ["Jenkins", "Infra", "CI/CD"]
+---
+
+지난번 서버에 젠킨스를 띄우기는 했으나, git push가 안되는 불상사가 생겼다. 별도의 트러블 슈팅으로 정리한다.
+
+## 목표
+- [x] GitHub push → Jenkins → Docker Compose 빌드 및 실행
+
+- [x] Discord Webhook으로 상태 알림
+
+- [x] Jenkins 컨테이너 안에서 Docker Compose 직접 실행 (DooD)
+
+---
+
+### Jenkinsfile
+<br />
+
+```shell
+pipeline {
+  agent any
+  triggers {
+    githubPush()
+  }
+  stages {
+    stage('Deploy') {
+      steps {
+        withCredentials([string(credentialsId: 'discord-webhook', variable: 'WEBHOOK_URL')]) {
+          dir('/home/ubuntu/zaro-main') {
+            sh '''
+              echo "Git pull 중..."
+              if git pull origin main; then
+                  curl -X POST -H "Content-Type: application/json" -d '{"content": "Git pull 성공!"}' $WEBHOOK_URL
+              else
+                  curl -X POST -H "Content-Type: application/json" -d '{"content": "Git pull 실패!"}' $WEBHOOK_URL
+                  exit 1
+              fi
+
+              curl -X POST -H "Content-Type: application/json" -d '{"content": "Docker 배포 시작..."}' $WEBHOOK_URL
+              docker-compose -f docker-compose.prod.yml down --rmi all
+
+              if docker-compose -f docker-compose.prod.yml up -d --build; then
+                  curl -X POST -H "Content-Type: application/json" -d '{"content": "배포 완료!"}' $WEBHOOK_URL
+              else
+                  curl -X POST -H "Content-Type: application/json" -d '{"content": "Docker 실패"}' $WEBHOOK_URL
+                  exit 1
+              fi
+            '''
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+- `withCredentials`로 Webhook 환경변수 전달, `sh` 블록 내에서 배포 및 Discord 알림까지 포함.
+
+<ThickLine />
+
+## 🚨 트러블슈팅
+
+#### 1. Credential Not Found
+
+```text
+ERROR: Could not find credentials entry with ID 'discord-webhook'
+```
+
+- Jenkins 설정 → Credentials에 ID `discord-webhook`
+
+**해결**: webhook credentials id 이름 잘못 씀
+
+---
+
+#### 2. 퍼미션 이슈: 컨테이너가 `/home/ubuntu` 접근 불가
+
+```text
+java.nio.file.AccessDeniedException: /home/ubuntu
+```
+- 젠킨스 컨테이너 UID 1000번에게 권한 주기
+
+```bash
+sudo chown -R 1000:1000 /home/ubuntu/zaro-main
+```
+-> 안됨.
+<br />
+
+**해결:**
+
+```bash
+sudo chown -R 1000:1000 /home/ubuntu
+sudo chmod 755 /home/ubuntu
+```
+
+- 더 큰 범위에서 권한 부여
+
+---
+#### 3. 여전한 권한 문제
+
+
+
+```text
+ls -al
+```
+- 젠킨스 컨테이너 안에서
+
+```bash
+drwxr-xr-x 7 ubuntu ubuntu 4096 May 30 07:20 /home/ubuntu/zaro-main
+```
+- ubuntu 유저만 쓰기 가능, Jenkins 컨테이너 안에서 Jenkins 유저가 이 경로에 접근하거나 수정하려면 권한 조정이 필요
+
+<aside>
+**host-container 구조**
+- Host: 실제 물리적인 서버 또는 EC2 인스턴스
+- Container: Host 위에서 돌아가는 가상 환경 (Jenkins, Nginx, Spring 등)
+</aside>
+- 둘 사이 디스크 자원 공유를 위해 volume mount 방식 사용
+<br />
+
+**Jenkins 컨테이너 안에서 .ssh키를 저장할 수 있도록 연결이 필요**
+
+- 컨테이너 안에서 실행
+```bash
+docker exec -it jenkins bash
+```
+<br />
+```bash
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+```
+- Jenkins 컨테이너에 직접 들어가서 GitHub SSH 키 등록을 수행하기 위한 명령어
+
+- 도커 컴포즈 설정
+```bash
+volumes:
+  - /home/ubuntu/jenkins_ssh:/var/jenkins_home/.ssh
+```
+
+---
+
+#### 4. DooD (Docker-outside-of-Docker) 설정
+
+- CI/CD 용도로는 DooD 많이 쓴다고 한다.
+
+```bash
+apt update && apt install -y docker.io docker-compose
+```
+- Jenkins 컨테이너에 Docker 설치
+
+```bash
+usermod -aG docker jenkins
+```
+- 도커 실행 권한 → 재시작
+
+```yaml
+volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+```
+- 도커 컴포즈 확인
+
+
+```yaml
+docker exec -it -u root jenkins /bin/bash
+```
+- Jenkins 컨테이너 안으로 root 권한으로 들어가기
+
+```yaml
+chown jenkins:jenkins /home/ubuntu
+```
+- `/home/ubuntu` 디렉토리의 소유자를 jenkins 유저로 바꿔줌
+<br />
+**권한 문제는 해결!!**
+
+
+---
+
+#### 5. 나머지 해결됬지만.. Git Pull에서 실패
+
+```bash
+git status
+```
+- 어제 도커랑 잘 마운트 되었는지 체크하려고 파일 하나 만들어 둔 것이 문제..ㅎㅎ
+
+```bash
+git clean -fd
+```
+
+- 잘 지워줬다.
+
+```bash
+git diff
+```
+- 확인해보니.. 무언가가 뜬다.
+
+```bash
+old mode 100644
+new mode 100755
+```
+- 모드가 바뀌었다고 한다.
+   - 파일 퍼미션(mode)이 변경됨. 644 → 755는 실행 권한이 생김. Jenkins나 Docker 빌드 중에 생길 수 있는 문제.
+
+```bash
+git config core.fileMode false
+```
+<br />
+**해결~**
+
+---
+
+## ✨ 마무리
+
+* Jenkins 컨테이너 기반 자동화 환경은 단순히 돌아가는 것이 아니라 권한, 마운트, 퍼미션, Git, Docker 설정 등 다양한 요소가 맞물림
+* 특히 Jenkins 내에서 Docker를 직접 제어할 때는 **DooD 구성과 권한 관리**가 핵심
+
+---
