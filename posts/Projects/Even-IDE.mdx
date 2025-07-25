@@ -8,56 +8,254 @@ imageUrl: "https://lh3.googleusercontent.com/d/1ePbLhBLuzx5mKbRRrIhFCzZ-dRe4Qmrq
 filter: ["🧸Toy", "👬Team"]
 ---
 
-## 작성 중입니다.
+## 서비스
 
-### 🧩 개요
+<br />
+#### 🧾 개요
+“학습부터 협업, 리뷰까지 even 하게” 활용할 수 있는 웹 기반 통합 개발 환경(IDE)입니다. 파일 관리, 코드 동시 편집, 코드 실행, 실시간 채팅, AI 코드 도우미 기능을 지원하여, 브라우저에서 다양한 개발 작업을 수행할 수 있습니다.
 
-Even IDE는 사용자들이 동시에 코드를 편집하고, 실행하고, 채팅할 수 있는 **실시간 코드 협업 플랫폼**입니다.  
-실행 서버 분리, WebSocket 기반 실시간 동기화, AI 챗봇 연동 등을 포함해 **보안성과 사용자 경험을 모두 고려한 설계**를 목표로 했습니다.
+<ThinShortLine />
 
----
-
-### 💡 배경
-
-- 개발자 간 협업에서 실시간 동기화와 코드 실행이 필요한 상황 많음  
-- 복잡한 설정 없이 웹에서 바로 실습 가능한 환경을 만들고 싶었음  
-- 채팅, 동시 편집, 코드 실행, AI 도우미까지 하나의 플랫폼에서 경험 가능하도록 설계
+#### 🎯 배경
+- 링크 하나로 프로젝트를 공유하고 복잡한 설정 없이 웹에서 바로 실습 가능한 환경을 만들고 싶었습니다.  
+- 채팅, 동시 편집, 코드 실행, AI 기능까지 하나의 플랫폼에서 경험 가능하도록 설계를 목표했습니다.
 
 ---
 
-### ⚙️ 주요 기능
+#### ✨ 주요 기능
 
-- 코드/프로젝트 파일 CRUD 및 실시간 동기화 (WebSocket 기반)
-- 다양한 언어의 코드 실행 API 및 결과 반환
-- 로그인/비로그인 분기 처리된 채팅 메시지 정책 (Redis ZSet 기반)
-- AI 챗봇(Spring AI + OpenAI)과 실시간 코드 대화
-- OAuth2 카카오 로그인
-- CI/CD, 서버 인증, 리버스 프록시 등 인프라 구성
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/1EhOWxZDQRlOnis_4mVleRpWRqDLRWF5Q/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-코드실행.png" width="100%" />
+        </a>
+        <small>프로젝트, 파일 관리 / 코드 실행</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1dULj2ll_iEi5JHI2l4xsRnL52qiVyLfq/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-채팅.png" width="100%" />
+        </a>
+        <small>채팅</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1-yl_LuPZUfHREKyPetVqmM1lvSJw6pMa/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-ai.png" width="100%" />
+        </a>
+        <small>AI 챗봇</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- **회원 관리**: 이메일 회원가입, 로그인, 소셜 로그인(Google, Kakao), 비밀번호 재설정
+- **프로젝트 & 파일 관리**: 프로젝트/파일 생성·조회·수정·삭제 기능 지원
+- **코드 협업**: Java/Python/JavaScript 코드 실행, 실시간 동시 편집, 코드 편집 잠금·해제 기능
+- **채팅**: 프로젝트별 실시간 채팅
+- **AI 지원**: 챗봇, 힌트 모드 및 코드 리팩토링 모드 제공
+- **메모 기능**: 파일별 메모 작성 및 수정, 삭제 가능
+
+<ThickLine />
+
+## 기술
+<br />
+#### 🗃️ ERD
+<a href="https://drive.google.com/file/d/1Cl7_Y9T0DYgPKb75u_5ZsoFB1q0-G9nf/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="/projects/images/even-ide/erd.png" alt="Even-IDE ERD" />
+</a>
+
+- 복잡한 기능보다, 핵심 기능에 집중하면서도 명확한 책임 분리를 유지하는 데 중점을 두어 구조를 최대한 단순하게 설계
+- 코드 파일은 편집 잠금, 읽기 잠금 필드를 가지고 있어 충돌 방지 및 동시 편집 제어가 가능
+- 토큰 관리, 인증 로직은 별도 테이블로 분리해 인증/보안 흐름이 도메인 로직과 충돌 방지
 
 ---
 
-### 기술적 도전 & 해결
+#### 🏗️ 기술 아키텍처
+<a href="https://drive.google.com/file/d/1lUtE8kIUB9Zt82w2niczVEO98-P_BtLg/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="/projects/images/even-ide/architecture.png" alt="Even-IDE ARCHITECTURE" />
+</a>
 
-#### Redis 기반 채팅 메시지 보존 정책
-- 로그인/비로그인에 따라 메시지 조회 범위 분기
-- Redis ZSet 구조로 전환 → 시간 기준 정렬 및 스케줄 삭제 자동화
-- 사용자 입장에서 보이는 시간 기준 UX 설계
-
-#### Docker-in-Docker 구조 대안 설계
-- 보안/성능 이슈 우려로 코드 실행기 서버를 EC2 내 다른 포트로 분리
-- 메인 서버는 API 중계만 담당 → 안정성과 운영 간소화 확보
-
-#### Spring AI 사전 도입 및 구조 대응
-- 정식 출시 전 Spring AI로 챗봇 연동
-- 이후 1.0 출시 후 구조 변경에 따라 ChatClient 리팩토링
-
-이미지 삽입: 코드 실행 요청 흐름 / AI 응답 예시 
-![요청 흐름](/projects/images/evenide/architecture.png) 
-![AI 응답 예시](/projects/images/evenide/ai.png)
+- Spring Boot 기반 API 서버는 도커 컨테이너로 실행
+- Redis는 실시간 채팅 메시지 저장과 로그인 인증 블랙리스트 관리에 활용, MySQL은 사용자, 프로젝트, 코드 등 핵심 데이터를 저장하는 메인 RDBMS로 사용
+- 코드 실행 기능은 보안 및 성능 문제를 고려해 별도의 컨테이너 기반 코드 실행 서버로 분리
+  - Spring Boot 애플리케이션이 내부 Docker 컨테이너를 통해 Java, Python, JavaScript 코드를 실행하고 결과를 반환하는 구조
+- Nginx는 리버스 프록시로, 클라이언트 요청을 Spring 서버로 전달하고 WebSocket 연결도 중계
+- Jenkins는 로컬 컨테이너 환경에서 실행, SSH를 통해 EC2 서버에 접속하여 스크립트를 실행하는 구조로 구성
 
 ---
 
-### 🧠 Learning Point
+#### 🤼‍♀️ 기술적 도전 & 트러블 슈팅
+
+##### 채팅 메시지 로그인 유무에 따른 보존 정책 및 Redis 자료구조
+
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/1SE1fis4qmMyXu2rNRewPT6Gny36EdNar/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/even-ide/ide-메시지조회작업.png" alt="Even-IDE 메시지조회작업" style={{ padding: "15px", justifyItems: "center", width: "80%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>작업 내용 기록</small>
+</div>
+
+
+**문제**  
+- 로그인 여부에 따라 채팅 메시지의 보관 기간 정책이 달라야 했습니다.  
+- 요구 사항:  
+  - 비로그인 사용자: 24시간 보관  
+  - 로그인 사용자: 3일 보관  
+- 기능을 구현하다보니, 보관 기간이 아니라 조회 기준으로 분기해야 함을 알게 되었습니다.
+  - **기존 요구 사항 수정**: 비로그인 사용자의 메시지를 24시간 유지, 로그인 사용자는 3일 유지 → 비로그인 사용자의 채팅창에서 24시간치만 보이고, 로그인 사용자는 3일치가 보여야 함
+- 초기에 Redis의 **List 자료구조**를 사용하여 메시지를 저장하고 TTL을 적용했으나, 시간 기준 삭제 및 사용자별 정책 적용이 어려워 **구조적 한계**에 부딪혔습니다.  
+
+<br />
+
+**접근 및 해결**  
+- Redis 자료구조를 **List → ZSet(score = timestamp)** 으로 변경하여 **시간 기준 정렬 및 조회 범위 분기**가 가능하도록 개선
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1MfnEaPitPmfpZxrRaoInUtx3l9nCUvuN/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/even-ide/ide-Redis저장.png" alt="Even-ide Redis 저장" style={{ padding: "15px", justifyItems: "center", width: "60%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>채팅 메시지 redis 저장 로직</small>
+  </div>
+  
+- 메시지는 ZSet에 저장되며, **스케줄러가 4일 주기로 일괄 삭제**하여 만료 데이터를 정리
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/15bczaKxm0sJ5qak2-pZhZExBZ9Y_b1Lo/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/even-ide/ide-스케줄러변경.png" alt="Even-ide 스케줄러 변경" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>채팅 메시지 redis 삭제 스케줄러 전/후</small>
+  </div>
+  - 기존: 사용자 타입별 분기
+  - 변경: timestamp 기준으로 4일 초과 메시지 삭제 
+  
+- 메시지 조회 시, Redis의 ZSet에서 score(timestamp) 기반으로 range 조회한 결과를 List로 변환하고, 로그인 여부에 따라 **조회 기준 기간**을 분기하여 메시지를 필터링
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1HLWc01EJkwG_I79yJolegpfmrrQe7Rp0/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/even-ide/ide-메시지조회로직.png" alt="Even-ide 조회 로직 변경" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>채팅 메시지 조회 로직 전/후</small>
+  </div>
+  - 비로그인 사용자: 24시간 이내 메시지만 조회  
+  - 로그인 사용자: 3일 이내 메시지 조회
+
+<br />
+
+**동작 테스트**
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/1dFMOz1ENQuNDZwvjAe__1KVxgVz3RD-F/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-비로그인.png" width="100%" />
+        </a>
+        <small>비로그인 사용자</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1UY4qdPKv8co6i0kdE_tmX_fQ39RX2qCM/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-비로그인조회불가.png" width="100%" />
+        </a>
+        <small>2분 후 메시지 조회 불가(비로그인)</small>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/16pHxXcxwul7FvO-dWj67vVOLNM0aLL5X/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-로그인.png" width="100%" />
+        </a>
+        <small>로그인 사용자</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1V8ErSeOok6f6Y7-8fm0C4f3V71se4wW3/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/even-ide/ide-로그인조회가능.png" width="100%" />
+        </a>
+        <small>3분 후 메시지 조회 가능(로그인)</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- 로그인 사용자 5분 조회 가능
+- 비로그인 사용자 2분 조회 가능
+- 스케줄러 1분 단위 실행 (메시지 4분 뒤 삭제)
+
+<br />
+
+**동시성 문제 고민**
+- @Scheduled와 WebSocket이 같은 Redis 키를 동시에 접근할 경우
+  - Redis는 **단일 스레드 기반** → 내부 연산은 원자적으로 처리
+  - WebSocket은 **짧은 빈도, 삽입 위주**
+  - @Scheduled는 **긴 간격 + 오래된 메시지 삭제**라 타이밍 겹칠 일이 거의 없음
+  - 동시성 문제 해당 없음
+
+
+<br />
+<ThinShortLine />
+<br />
+
+##### Docker-in-Docker 구조 대안 설계
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/1ISHyLAkNvm2BXCfYjpFdHFvnbvOAhfcf/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/even-ide/ide-도커작업.png" alt="Even-ide 도커인도커문제" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>작업 전 내용 정리</small>
+</div>
+**문제**  
+- Web IDE에서 코드 에디터에 작성된 코드를 실행하기 위한 구조 설계 중, 도커 컨테이너 내부(Spring 애플리케이션)에서 `docker run`을 실행하는 **Docker-in-Docker** 방식을 처음 고려했습니다.
+- 이런 방식에 대해 의문이 들었고 Docker-in-Docker 방식에 대해 찾아본 결과, **보안 위험, 권한 문제, 성능 병목(서버 부하) 등의 한계**가 있을 수 있다고 하여, 도입 전 구조를 개선하기로 결정했습니다. 
+
+<br />
+
+**접근 및 해결**  
+- Docker-in-Docker 구조는 배제하고, 코드 실행 전용 서버를 별도 Spring 애플리케이션으로 분리 
+- 프론트엔드에서 기존 ide 백엔드로 실행 요청 → 백엔드는 code-runner 서버로 전달 → 실행 결과를 다시 프론트에 반환하는 **API 중계 구조로 변경**
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/17EL1rBvxoXiFkXObWjGrlxNKBrJXkQJ0/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/even-ide/ide-중계구조.png" alt="Even-ide 중계구조" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>코드 실행 로직 (중계구조)</small>
+  </div>
+- 실행 서버는 요청을 받아 컨테이너를 직접 생성하고, 코드 실행 결과(stdout)를 응답으로 반환  
+- `.jar` 파일을 직접 실행할 수 있도록 **도커 이미지 빌드 없이 실행 디렉토리 구성**으로 간소화  
+  - **🔗 코드 실행 전용 |** [github/even-IDE-coderunner](https://github.com/code-is-evenly-cooked/even-IDE-coderunner) 
+<br />
+<ThinShortLine />
+<br />
+
+#### Spring AI 정식 출시 전후 구조 대응 및 ChatClient 리팩토링
+**문제**  
+- Spring AI를 도입하던 시점은 아직 **정식 버전(1.0.0) 출시 이전**으로, Snapshot 의존성만 제공되는 상태였습니다.  
+- 공식 문서와 예제가 부족하여 도입에 어려움이 있었고, `OpenAiApi`, `OpenAiChatOptions`, `OpenAiChatModel`을 **직접 구성한 뒤**, `ChatClient.builder(model)`로 직접 인스턴스를 생성하는 방식을 택했습니다.  
+- 이후 Spring AI 1.0.0 정식 출시 이후에는 구조가 **Spring Boot Auto-Configuration 기반**으로 변경되며, 기존 방식은 더 이상 동작하지 않고 에러가 발생하기 시작했습니다.
+
+**접근 및 해결**  
+- 도입 시점 `ChatClient`를 수동으로 생성하고, 내부에서 `OpenAiChatModel`을 직접 구성해 주입
+- 이후 Spring AI 1.0.0 정식 버전 출시
+  - Spring AI는 정식 릴리즈 전까지는 Maven Central이 아닌 별도의 저장소 등록이 필요, 정식 버전 배포 후 Maven Central에 등록되면서 별도 저장소 제거
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/17MryyDaFsi8Isu1_wupQG__es2nnTOn9/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/even-ide/ide-의존성.png" alt="Even-ide 의존성" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>별도 저장소 제거 및 의존성 변경 전,후</small>
+  </div>
+  - Spring Boot에서 `ChatClient.Builder`를 자동으로 구성해주는 방식으로 구조가 변경, 모델 정의와 클라이언트 생성의 책임을 분리
+  - `OpenAiChatModel`은 별도 @Bean으로 분리, `ChatClient.Builder`를 주입받아 생성하는 방식으로 리팩토링 진행
+    <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+        <a href="https://drive.google.com/file/d/1uudYIcEDJKEwSD2GEp3LrpRXcV8srs_4/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+          <img src="/projects/images/even-ide/ide-리팩토링.png" alt="Even-ide 리팩토링" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+        </a>
+        <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>Config 코드 리팩토링 전,후</small>
+    </div>
+  - 전역에서 재사용 가능한 `ChatClient` Bean을 구성 클래스에서 수동으로 등록해, 기본 스타일 프롬프트 적용
+    <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+        <a href="https://drive.google.com/file/d/1IYVnwE6nFeCrknC39IhAWcHLyr9mOB94/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+          <img src="/projects/images/even-ide/ide-공식문서.png" alt="Even-ide 공식문서" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+        </a>
+        <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>공식문서-Default System Text</small>
+    </div>
+
+---
+
+#### 🧠 Learning Point
 
 - 실시간 시스템에서 메시지 흐름, TTL 정책 등 사용자 중심 설계 필요성 체감
 - 도커 실행 환경 분리를 통한 보안·성능·운영 효율성 확보
@@ -66,7 +264,10 @@ Even IDE는 사용자들이 동시에 코드를 편집하고, 실행하고, 채�
 
 ---
 
-### 🔗 레포지토리
+**🔗 GitHub |**
+- [even-IDE-back](https://github.com/code-is-evenly-cooked/even-IDE-back)
+- [even-IDE-coderunner](https://github.com/code-is-evenly-cooked/even-IDE-coderunner)   
 
-- [even-IDE-back](https://github.com/even-IDE-back)
-- [even-IDE-coderunner](https://github.com/even-IDE-coderunner)
+**🔗 배포 링크 |** [Even-IDE](https://even-ide.vercel.app/) - 25.06.30 인스턴스 종료로 기능 사용 불가
+
+<ThickLine />
