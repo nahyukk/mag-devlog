@@ -6,11 +6,11 @@ import Post from '@/components/Post';
 
 
 export const metadata = {
-  title: "Resume | 김나현",
+  title: "Resume | NahyukKim",
 };
 
 export default function Resume() {
-  const filePath = path.join(process.cwd(), "posts", "Resume", "resume.mdx");
+  const filePath = path.join(process.cwd(), "posts", "Resume", "resume-eng.mdx");
   const mdxSource = fs.readFileSync(filePath, "utf8");
 
   return (

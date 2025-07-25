@@ -64,6 +64,15 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
     applyFilters(selectedFilter, term);
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 639);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div
       style={{
@@ -71,12 +80,21 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
         width: "100%",
         maxWidth: "810px",
         marginBottom: "10px",
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       <nav aria-label="Blog 카테고리 필터">
-        <ul style={{ display: "flex", gap: "10px" }}>
+        <ul style={{
+          display: "flex",
+          gap: "10px",
+          flexWrap: isMobile ? "nowrap" : "wrap",
+          overflowX: "auto",
+          whiteSpace: isMobile ? "nowrap" : "normal",
+        }}
+        >
           {filters.map((filter) => (
-            <li key={filter} style={{ listStyle: "none"}}>
+            <li key={filter} style={{ listStyle: "none", flexShrink: 0 }}>
               <button
                 key={filter}
                 onClick={() => handleFilterClick(filter)}
@@ -106,7 +124,7 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
                     gap: "3px",
                   }}
                 >
-                  {!["All", "Project", "CS", "강의"].includes(filter) && (
+                  {!["All", "Project", "CS", "강의", "CI/CD", "Infra", "DB"].includes(filter) && (
                     <img
                       src={getFilterIcon(filter)}
                       alt={`${filter} icon`}
