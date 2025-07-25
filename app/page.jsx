@@ -79,7 +79,7 @@ export default async function Home() {
               <br />
               기획과 사용자 경험을 바탕으로 로직을 설계하는 
               <br />
-              백엔드, 풀스택 개발자 Mag입니다.
+              백엔드 개발자 Mag입니다.
             </p>
 
             <p className={styles.introMyself}>
