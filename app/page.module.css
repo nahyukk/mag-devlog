@@ -68,7 +68,7 @@
 }
 
 .recentPosts h2,
-.randomTIL h2 {
+.randomPh2 {
   font-family: var(--font-baloo) !important;
   font-size: 35px !important;
   font-weight: 400 !important;
