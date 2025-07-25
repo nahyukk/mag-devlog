@@ -1,0 +1,72 @@
+---
+title: "Even IDE"
+description: "코드 실행, 채팅, 실시간 협업 기능을 갖춘 웹 기반 IDE 플랫폼"
+date: "2025-04-03 ~ 2025-04-28"
+role: "Project Lead, Backend, Server, Frontend"
+skills: "Spring Boot, Spring Security, JWT, Redis, AWS EC2, RDS(MySQL), S3, Docker, Jenkins, Nginx, ElasticSearch, Swagger, Next.js"
+imageUrl: "https://lh3.googleusercontent.com/d/1ePbLhBLuzx5mKbRRrIhFCzZ-dRe4Qmrq"
+filter: ["🧸Toy", "👬Team"]
+---
+
+## 작성 중입니다.
+
+### 🧩 개요
+
+Even IDE는 사용자들이 동시에 코드를 편집하고, 실행하고, 채팅할 수 있는 **실시간 코드 협업 플랫폼**입니다.  
+실행 서버 분리, WebSocket 기반 실시간 동기화, AI 챗봇 연동 등을 포함해 **보안성과 사용자 경험을 모두 고려한 설계**를 목표로 했습니다.
+
+---
+
+### 💡 배경
+
+- 개발자 간 협업에서 실시간 동기화와 코드 실행이 필요한 상황 많음  
+- 복잡한 설정 없이 웹에서 바로 실습 가능한 환경을 만들고 싶었음  
+- 채팅, 동시 편집, 코드 실행, AI 도우미까지 하나의 플랫폼에서 경험 가능하도록 설계
+
+---
+
+### ⚙️ 주요 기능
+
+- 코드/프로젝트 파일 CRUD 및 실시간 동기화 (WebSocket 기반)
+- 다양한 언어의 코드 실행 API 및 결과 반환
+- 로그인/비로그인 분기 처리된 채팅 메시지 정책 (Redis ZSet 기반)
+- AI 챗봇(Spring AI + OpenAI)과 실시간 코드 대화
+- OAuth2 카카오 로그인
+- CI/CD, 서버 인증, 리버스 프록시 등 인프라 구성
+
+---
+
+### 기술적 도전 & 해결
+
+#### Redis 기반 채팅 메시지 보존 정책
+- 로그인/비로그인에 따라 메시지 조회 범위 분기
+- Redis ZSet 구조로 전환 → 시간 기준 정렬 및 스케줄 삭제 자동화
+- 사용자 입장에서 보이는 시간 기준 UX 설계
+
+#### Docker-in-Docker 구조 대안 설계
+- 보안/성능 이슈 우려로 코드 실행기 서버를 EC2 내 다른 포트로 분리
+- 메인 서버는 API 중계만 담당 → 안정성과 운영 간소화 확보
+
+#### Spring AI 사전 도입 및 구조 대응
+- 정식 출시 전 Spring AI로 챗봇 연동
+- 이후 1.0 출시 후 구조 변경에 따라 ChatClient 리팩토링
+
+이미지 삽입: 코드 실행 요청 흐름 / AI 응답 예시 
+![요청 흐름](/projects/images/evenide/architecture.png) 
+![AI 응답 예시](/projects/images/evenide/ai.png)
+
+---
+
+### 🧠 Learning Point
+
+- 실시간 시스템에서 메시지 흐름, TTL 정책 등 사용자 중심 설계 필요성 체감
+- 도커 실행 환경 분리를 통한 보안·성능·운영 효율성 확보
+- Spring AI, Jenkins, GitHub Release 자동화 등 실전 기술 적용 경험
+- API 설계 시 프론트와의 명세 조율과 사용자 흐름 기반 응답 구조 고려의 중요성 학습
+
+---
+
+### 🔗 레포지토리
+
+- [even-IDE-back](https://github.com/even-IDE-back)
+- [even-IDE-coderunner](https://github.com/even-IDE-coderunner)
