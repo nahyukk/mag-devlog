@@ -23,7 +23,13 @@
 
 .card:hover {
   transform: scale(1.03);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(100, 100, 100, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow: 0 4px 8px rgba(110, 110, 110, 0.1);
+  } 
 }
 
 .image {
