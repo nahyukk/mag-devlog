@@ -1,0 +1,112 @@
+---
+title: "DB Check 제약조건 오류 해결기"
+description: "Check constraint 'user_chk_1' 오류를 분석하고, enum 타입 전환 이후 발생한 MySQL 제약 조건 이슈를 해결한 과정"
+date: "2025.05.21"
+filter: ["MySQL", "DB"]
+---
+
+갑자기 날아온 디엠...
+
+<br />
+<img src="https://lh3.googleusercontent.com/d/1Pb02OLukughBntsLY4GSAugeYY4w2bVk" width="50%" />
+
+- 이미 몇일 전 로컬에서 봤던거라 어떻게든 해결할 수 있다는 자신감의 답장 “넵넵~”
+
+---
+
+#### 문제 상황
+
+- 카카오 로그인을 하는데 아래와 같은 에러가 뜸.
+<br />
+
+```json
+{
+"code": "DB_ACCESS_ERROR",
+"message": "데이터베이스 오류 발생: could not execute statement [Check constraint 'user_chk_1' is violated.] [/* insert for com.even.zaro.entity.User */insert into user (birth_date, created_at, email, follower_count, following_count, gender, last_login_at, live_alone_date, mbti, nickname, password, profile_image, provider,provider_id, status, updated_at) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)]",
+"data": null
+}
+```
+
+- 잘못된 제약 조건이 들어가 있는 것.
+- provider가 0, 1로 되어있는 걸 enum(string)으로 수정한 적이 있는데 이 이후로 이 에러가 나타남.
+- 처음에 로컬 db에서 나타나서 제약조건을 없애 버렸음.
+- 서버에서 같은 에러가 난다는 제보를 받고 확인 해봄. 서버라 제약 조건을 없애는 건 아닌 것 같아서 수정하는 방향으로 해결함.
+
+<aside>
+  👾 이전까지 워크벤치에서 쿼리 돌리는 거 못하고 ui로만 어떻게 어떻게 했는데 쿼리 문 날리는 거.. 생각보다 편하고 좋다.
+
+  <img src="https://lh3.googleusercontent.com/d/1Ei_5dUeDm6m1pS_nh4aFygtsN8dCR9Uo" width="80%" />
+
+  - 쿼리 작성하고 번개 모양 누르면 실행되면서 아래 output으로 나옴.
+</aside>
+
+---
+
+#### 해결
+
+- 우선 어떤 제약 조건이 있는지 확인
+
+```sql
+USE evendb;
+
+SHOW CREATE TABLE user;
+```
+<br />
+- 아래는 output
+
+```sql
+CREATE TABLE user (
+  id bigint NOT NULL AUTO_INCREMENT,
+  birth_date date DEFAULT NULL,
+  created_at datetime(6) NOT NULL,
+  email varchar(255) NOT NULL,
+  follower_count int DEFAULT NULL,
+  following_count int DEFAULT NULL,
+  gender varchar(255) DEFAULT NULL,
+  last_login_at datetime(6) DEFAULT NULL,
+  live_alone_date date DEFAULT NULL,
+  mbti varchar(4) DEFAULT NULL,
+  nickname varchar(255) NOT NULL,
+  password varchar(255) DEFAULT NULL,
+  profile_image varchar(255) DEFAULT NULL,
+  status enum('ACTIVE','DELETED','DORMANT','PENDING') NOT NULL,
+  updated_at datetime(6) DEFAULT NULL,
+  provider enum('LOCAL','KAKAO') NOT NULL,
+  provider_id varchar(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY UKob8kqyqqgmefl0aco34akdtpe (email),
+  UNIQUE KEY UKavppunt4c0qpxo9giv18an98o (provider,provider_id),
+  **CONSTRAINT user_chk_1 CHECK ((provider between 0 and 1)**)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
+
+- **`CONSTRAINT user_chk_1 CHECK ((provider between 0 and 1))` 이 부분이 문제**
+
+<br />
+<ThinShortLine />
+<br />
+
+```sql
+ALTER TABLE user
+DROP CHECK user_chk_1;
+
+ALTER TABLE user
+ADD CONSTRAINT user_chk_1 CHECK (provider IN ('LOCAL', 'KAKAO'));
+```
+
+- 기존 제약 조건을 없애고, 수정된 제약 조건을 넣음.
+  - 기존 `0`, `1` → `LOCAL`, `KAKAO`로 수정
+
+---
+
+#### 배운 점
+
+이제 제약 조건 따위 두렵지 않다.
+
+<aside>
+  💁🏻‍♀️ **왜 DB에 제약조건을 거는가?**
+  - 데이터의 정합성과 신뢰성을 유지하기 위해 필요
+    - 실수 방지(CHECK), 중복 방지(UNIQUE), 필수 값 보장(NOT NULL)
+    - 관계 보장(FK)
+    - 삭제 수정 연쇄방지 (ON DELETE CASCADE 설정) 
+</aside>

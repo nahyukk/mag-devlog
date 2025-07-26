@@ -128,6 +128,8 @@ UX 및 법적 요건(이메일 인증, 휴면 처리 등)도 함께 반영해야
 **문제 3**  
 - DORMANT 전환 30일 전 메일 안내 시, 로그인 활동으로 `lastLoginAt`이 갱신되더라도 이전 발송 이력을 기준으로 재발송되지 않아 안내 메일 누락이 발생할 수 있었습니다.
 
+<br />
+
 **로직 고민 및 결과 1**
 - 메일 인증 전 PENDING 회원 처리
     - 회원가입 시 이메일 인증을 완료하지 않은 회원을 PENDING 상태로 저장
@@ -198,6 +200,8 @@ UX 및 법적 요건(이메일 인증, 휴면 처리 등)도 함께 반영해야
 **문제 2**
 - AWS 비용을 고려한 무중단 배포를 구성하는 것을 목표로 했습니다.
 - 일반 Blue-Green 무중단 배포를 구성 했으나, Main 서버가 블루일 때 빌드를 하면서 컨테이너가 내려가 Sub 서버도 통신이 불가능해지는 문제가 발견되었습니다.    
+
+<br />
 
 **접근 및 해결 1**
 - Jenkins 서버 이관 및 팀 기반 운영 환경 구성
@@ -272,7 +276,7 @@ UX 및 법적 요건(이메일 인증, 휴면 처리 등)도 함께 반영해야
 
 ---
 
-**🔗 GitHub |** [even-zaro-back](https://github.com/your-repo-link)     
+**🔗 GitHub |** [even-zaro-back](https://github.com/code-is-evenly-cooked/even-zaro-back)     
 **🔗 배포 링크 |** [ZARO](https://zaro.vercel.app/) - 25.06.30 인스턴스 종료로 기능 사용 불가
 
 <ThickLine />

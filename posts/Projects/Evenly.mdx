@@ -1,0 +1,210 @@
+---
+title: "Evenly"
+description: "미니멀한 컨셉의 집 꾸미기 전문 쇼핑몰, 장바구니·주문·관리자 기능까지 포함한 플로우 구현"
+date: "2025-04-03 ~ 2025-04-28"
+role: "Project Lead, Backend, Server, Frontend"
+skills: "Spring Boot, Spring Security, JWT, Redis, AWS EC2, RDS(MySQL), S3, Docker, Jenkins, Nginx, ElasticSearch, Swagger, Next.js"
+imageUrl: "https://lh3.googleusercontent.com/d/1PQxFh4wJ9J6luPgAn-6hjDtw3ULnUkIe"
+filter: ["🧸Toy", "👬Team"]
+---
+
+## 서비스
+
+<br />
+#### 🧾 개요
+감각적인 공간을 추구하는 20~30대를 위한 집 꾸미기 소품 전문 쇼핑몰입니다.
+미니멀한 스타일과 실용적인 UI로 사용자 편의를 고려했으며, 상품 탐색부터 주문까지 직관적인 흐름을 제공합니다.
+
+<ThinShortLine />
+
+#### 🎯 배경
+- 1인가구와 MZ세대를 중심으로 인테리어 소품 소비 증가
+- 실사용을 고려한 장바구니·주문·결제 플로우 구성과 관리자 기능 포함한 쇼핑몰 풀플로우 설계를 목표로 기획
+
+---
+
+#### ✨ 주요 기능
+
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/1JXZE2hqMvxT38EuDrGAZ0cYqXkNxLLYn/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/evenly/evenly-홈화면.png" width="100%" />
+        </a>
+        <small>홈 화면</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1tsZCiOaHdhTB-b3UGgpNmHubj-cLXdYz/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/evenly/evenly-주문상세.png" width="100%" />
+        </a>
+        <small>주문 상세 조회</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1jJNXEhssG6sdn-M6tKOvyuNuTFdDiPcP/view?usp=drive_link" target="_blank">
+          <img src="/projects/images/evenly/evenly-상품관리페이지.png" width="100%" />
+        </a>
+        <small>상품 관리 관리자 페이지</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- **회원 관리**: 이메일 기반 회원가입, 로그인, 로그아웃, 내 정보 조회 및 비밀번호 변경
+- **쇼핑**: 상품 목록, 상세 조회, 장바구니 담기, 수량 변경, 삭제 기능
+- **주문 및 결제**: 주문, 목록, 상세 조회, 결제(목업) 기능
+- **관리자 기능**: 고객 관리, 상품 관리, 주문 관리
+
+<ThickLine />
+
+## 기술
+<br />
+#### 🗃️ ERD
+<a href="https://drive.google.com/file/d/1MCpxDArkU9zEaaewjXmk6KYrIzdzGuLi/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="/projects/images/evenly/erd.png" alt="Evenly ERD" />
+</a>
+
+- 상품(products)을 중심으로 장바구니(cart_items), 주문(order_items)과 1:N 관계로 연결됨
+- 회원(member)은 장바구니(cart), 주문(orders)과 각각 1:1, 1:N 관계를 가짐
+- 카테고리(category)는 여러 상품을 포함할 수 있는 1:N 구조
+- 전체 흐름이 실사용 시나리오에 맞게 직관적이고 정규화된 구조로 설계됨
+
+---
+
+#### 🏗️ 기술 아키텍처
+<a href="https://drive.google.com/file/d/1s-9_2eduGl7UEs26nC9dCtGNV-RY31gA/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="/projects/images/evenly/architecture.png" alt="Evenly ARCHITECTURE" style={{ width: "50%" }} />
+</a>
+
+- Spring Boot 기반 백엔드 애플리케이션을 Docker로 컨테이너화하여 AWS EC2에 배포
+- 인증/인가는 Spring Security + JWT를 통해 구현
+- 데이터베이스는 MySQL, 로그아웃 블랙리스트 Redis 사용
+- CI/CD는 GitHub Push 이후 수동 배포, Jenkins + Docker를 로컬에 구성해 사용
+
+---
+
+#### 🤼‍♀️ 기술적 도전 & 트러블 슈팅
+
+##### Spring Security와 CORS 설정 이슈 대응
+**문제 상황**
+1. 프론트엔드에서 `GET /products` 호출 시 CORS 에러 발생
+2. WebMvcConfigurer로 해결되었지만, 이후 `POST /cart`, `POST /orders/create` 요청 시 다시 CORS 에러가 발생
+3. 이후 preflight request CORS에러가 다시 발생
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/15bczaKxm0sJ5qak2-pZhZExBZ9Y_b1Lo/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/evenly/evenly-cors.png" alt="Evenly-CORS" alt="Even-ide 스케줄러 변경" style={{ padding: "15px", justifyItems: "center", width: "60%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>CORS에러 해결 요청</small>
+</div>
+
+<br />
+
+**원인 분석**
+- Spring Security 필터를 통과하지 않는 API는 `WebMvcConfigurer`에서의 CORS 설정으로 동작
+- 하지만, 보안 필터를 거치는 API는 `Spring Security`의 `SecurityFilterChain`에서 별도 CORS 설정이 필요
+- preflight 요청(`OPTIONS`)이 누락될 경우도 CORS 오류 발생
+
+<br />
+
+**접근 및 해결**  
+- WebMvcConfigurer에 기본 CORS 설정 추가
+- 처음에 `OPTIONS`를 넣지 않았는데 그럴 경우 preflight 부분이 CORS 에러가 발생
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1_-6vmpBE8TGEIDGRL81bC4aGYpYgX3jB/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-webconfig-cors.png" alt="Evenly-webconfig-cors" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>WebMvcConfigurer</small>
+  </div>
+ 
+- 필터체인에 CORS 허용하는 코드 추가
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1foCShKon0Z_BlTwSrYHby5t0BKxzQHUM/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-security-cors.png" alt="Evenly-security-cors" alt="Even-ide Redis 저장" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>Security CorsConfig</small>
+  </div>
+- WebMvcConfigurer와 SecurityFilterChain에 CORS 설정 중복 정의 가능
+  
+<br />
+
+**추가 Warning 해결**  
+<code style={{ color: "red" }}>cors() is deprecated since version 6.1 and marked for removal</code>
+- 기존 `.cors().configurationSource(corsConfigurationSource())`
+- 수정 `.cors(cors -> cors.configurationSource(corsConfigurationSource()))`
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1beH2xyYM5nMNgkiYAeh7Na5EyrGEVyrM/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-6.1.png" alt="Evenly-6.1-warning" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>람다 기반 DSL로 수정 후 코드</small>
+  </div>
+
+<br />
+<ThinShortLine />
+<br />
+
+##### 주문, 결제 API 흐름 리팩토링
+<br />
+**문제**  
+- 장바구니 기능 도입 전, 주문과 결제 흐름이 단순하게 구성되어 있어 사용자 흐름과 맞지 않는 구조
+- `POST /orders/create` API에서 결제용 정보(주소, 결제 방식 등)를 함께 받았고, 결제 처리와 주문 생성의 역할이 섞여 있었음
+- 결제 성공/실패를 `0.95` 확률로 시뮬레이션 (목업 구현), 실패시 DB 저장 x 및 예외 처리
+
+<br />
+
+**접근 및 해결**  
+
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", }}>
+    <a href="https://drive.google.com/file/d/1b4ECLvuchAsxcZoxNpkwAgbNfdAkPx2x/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-플로우전후.png" alt="evenly-플로우전후" style={{ width: "90%", maxWidth: "600px", }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)" }}>리팩토링 전/후</small>
+  </div>
+
+- **주문 생성과 결제 요청을 분리**  
+  - 주문 생성 시 먼저 재고 확인을 수행한 후, 상품 정보를 저장하고 주문 상태를 `NOT_PAID`로 설정  
+  - 결제 성공 여부와 관계없이 주문 데이터는 항상 생성
+
+- **결제 API 분리 및 절차 고도화**  
+  - 결제 API에서는 중복 결제 여부를 검증하고, 0.95 확률로 결제 성공 여부를 판별  
+  - 결제 성공 시:
+    - 주문 상태를 `PENDING`으로 변경  
+    - 상품 재고만 차감 → 상품 재고를 차감하고, 장바구니의 해당 상품 수량을 차감하거나 삭제  
+    - 결제 결과 boolean 바로 반환 → 주문 번호(`orderNumber`)를 생성하고, 결제 정보를 저장  
+    - 결제 결과를 DTO 형식으로 반환
+  - 결제 실패 시:
+    - 주문 상태는 `NOT_PAID`로 유지, 1일 후 자동 삭제되는 스케줄러를 추가해 관리
+    - 실패 메시지를 포함한 응답 반환
+
+<br />
+**추가 에러 해결 - 재고 감소 로직 오류 및 수정**
+- 결제 후 재고를 차감하는 로직에서 **예상치 못한 stock 값이 출력**되며, 처리 순서와 값이 엉키는 문제가 발생했습니다.
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/1ojPfZyG13ICVPquw3o1YChKN3EZDAIQE/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/evenly/evenly-재고변경에러.png" alt="evenly/evenly-재고변경에러" style={{ padding: "15px", justifyItems: "center", width: "60%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>재고 변경 로직 에러</small>
+</div>
+- 기존 코드: `product.changeStock(product.getStock() - orderItem.getQuantity());`
+    - getStock() 값을 미리 계산해 전달했지만, changeStock() 메서드 내부에서도 다시 차감 로직을 수행해 이중 차감 문제가 발생 
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/1DrvfF9cCi9vy7QeSbGJP6xBtj5L11vh-/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/evenly/evenly-재고변경로직.png" alt="evenly/evenly-재고변경로직" style={{ padding: "15px", justifyItems: "center", width: "50%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>재고 변경 로직</small>
+</div>
+
+- 변경 후 코드: `product.changeStock(orderItem.getQuantity());`
+
+---
+
+#### 🧠 Learning Point
+- Spring Security와 WebMvcConfigurer에서의 CORS 설정 충돌 이슈를 직접 해결하며, 운영 환경에서 발생하는 기본적인 CORS 오류에 대한 원인 분석 및 대응 능력을 향상시켰습니다.
+- 주문-결제 흐름을 실제 서비스 시나리오에 맞게 재설계하며, 결제 성공 조건과 후속 처리(재고 차감, 장바구니 수량 변경 등)를 체계적으로 분리하고 구성하는 경험을 쌓았습니다.
+- 관리자 기능과 사용자 기능을 분리하고, Thymeleaf 기반의 관리자 CRUD UI를 직접 구현하며 MVC 패턴의 흐름을 이해하고 적용해보는 경험을 쌓았습니다.
+---
+
+**🔗 GitHub |** [evenly-back](https://github.com/LJIEUN/evenly-back)    
+
+**🔗 배포 링크 |** [Evenly](https://goorm-evenly.vercel.app/) - 25.06.30 인스턴스 종료로 기능 사용 불가
+
+<ThickLine />

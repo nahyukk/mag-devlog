@@ -2,15 +2,16 @@ import styles from "./page.module.css";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
-import TILList from "./components/TIL/TILList";
 import BlogList from "./components/Blog/BlogList";
+import ProjectList from "./components/Project/ProjectList";
+import Link from "next/link";
 
 export const metadata = {
   title: "Home | Mag's Devlog",
 };
 
-const getTILPosts = async () => {
-  const postsDirectory = path.join(process.cwd(), "posts", "TIL");
+const getProjectPosts = async () => {
+  const postsDirectory = path.join(process.cwd(), "posts", "Projects");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = filenames.map((filename) => {
@@ -22,7 +23,9 @@ const getTILPosts = async () => {
       slug: filename.replace(".mdx", ""),
       title: data.title,
       description: data.description,
+      date: data.date,
       filter: data.filter || [],
+      imageUrl: data.imageUrl || "",
     };
   });
   return posts;
@@ -63,10 +66,10 @@ export default async function Home() {
   const posts = await getBlogPosts();
   const latestPosts = posts
     .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 5);
+    .slice(0, 3);
 
-  const tils = await getTILPosts();
-  const randomTils = tils.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const projects = await getProjectPosts();
+  const randomProjects = projects.sort(() => 0.5 - Math.random()).slice(0, 2);
 
   return (
     <main className={styles.mainBody}>
@@ -74,16 +77,14 @@ export default async function Home() {
         <section className={styles.introduction}>
           <div className={styles.introHeader}>
             <h1>Mag's Devlog</h1>
-            <p className={styles.introMyself}>
-              안녕하세요! 🙌
+            <div className={styles.introMyself}>
+              <p className={styles.introMyself}>Hi there! 🙌 </p>   
+              I’m <strong>Nahyun Kim</strong> — a backend developer
               <br />
-              기획과 사용자 경험을 바탕으로 로직을 설계하는 
-              <br />
-              백엔드, 풀스택 개발자 Mag입니다.
-            </p>
-
+              with a product mindset and a focus on user experience.
+            </div>
             <p className={styles.introMyself}>
-              이 블로그에는 프로젝트와 개발하면서 배운 것들을 담고 있습니다.
+            This blog is where I share my projects, ideas, and things I've learned along the way.
             </p>
           </div>
         </section>
@@ -91,9 +92,9 @@ export default async function Home() {
           <h2>Recent Posts</h2>
           <BlogList posts={latestPosts} />
         </section>
-        <section className={styles.randomTIL}>
-          <h2>Random TIL</h2>
-          <TILList posts={randomTils} />
+        <section>
+          <h2 className={styles.randomPh2}>Random Projects</h2>
+          <ProjectList posts={randomProjects} />
         </section>
       </section>
     </main>

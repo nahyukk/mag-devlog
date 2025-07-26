@@ -152,6 +152,11 @@ pre {
   border-radius: 8px;
 }
 
+pre code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+}
+
 aside {
   padding: 1rem;
   margin: 1rem 0;

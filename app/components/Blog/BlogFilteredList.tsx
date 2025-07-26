@@ -14,6 +14,7 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -28,6 +29,13 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 639);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const getFilterIcon = (filter: string) => {
@@ -63,15 +71,6 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
     setSearchTerm(term);
     applyFilters(selectedFilter, term);
   };
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 639);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   return (
     <div
@@ -124,7 +123,7 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
                     gap: "3px",
                   }}
                 >
-                  {!["All", "Project", "CS", "강의", "CI/CD", "Infra", "DB"].includes(filter) && (
+                  {!["All", "Project", "CS", "강의", "CI/CD", "Infra", "DB", "AI"].includes(filter) && (
                     <img
                       src={getFilterIcon(filter)}
                       alt={`${filter} icon`}

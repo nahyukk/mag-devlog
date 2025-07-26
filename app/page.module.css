@@ -56,11 +56,13 @@
 }
 
 .introMyself {
-  font-family: var(--font-baloo);
+  font-family: var(--font-roboto-mono);
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.6;
+  margin-top: 1rem;
   margin-bottom: 1rem;
+  letter-spacing: -0.5px;
 }
 
 .recentPosts {
@@ -68,7 +70,7 @@
 }
 
 .recentPosts h2,
-.randomTIL h2 {
+.randomPh2 {
   font-family: var(--font-baloo) !important;
   font-size: 35px !important;
   font-weight: 400 !important;
