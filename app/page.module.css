@@ -77,6 +77,10 @@
   color: var(--primary-color) !important;
 }
 
+.randomPh2 {
+  margin-bottom: 20px;
+}
+
 .TILCard {
   height: 135px;
   width: 100%;
