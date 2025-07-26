@@ -123,7 +123,7 @@ const BlogFilteredList = ({ filters, posts }: BlogFilteredListProps) => {
                     gap: "3px",
                   }}
                 >
-                  {!["All", "Project", "CS", "강의", "CI/CD", "Infra", "DB"].includes(filter) && (
+                  {!["All", "Project", "CS", "강의", "CI/CD", "Infra", "DB", "AI"].includes(filter) && (
                     <img
                       src={getFilterIcon(filter)}
                       alt={`${filter} icon`}
