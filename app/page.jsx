@@ -66,7 +66,7 @@ export default async function Home() {
   const posts = await getBlogPosts();
   const latestPosts = posts
     .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 5);
+    .slice(0, 3);
 
   const projects = await getProjectPosts();
   const randomProjects = projects.sort(() => 0.5 - Math.random()).slice(0, 2);
