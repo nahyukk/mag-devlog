@@ -77,15 +77,14 @@ export default async function Home() {
         <section className={styles.introduction}>
           <div className={styles.introHeader}>
             <h1>Mag's Devlog</h1>
-            <p className={styles.introMyself}>
-              안녕하세요! 🙌
+            <div className={styles.introMyself}>
+              <p className={styles.introMyself}>Hi there! 🙌 </p>   
+              I’m <strong>Nahyun Kim</strong> — a backend developer
               <br />
-              사용자 경험을 바탕으로 기획을 깊이 이해하며 로직을 설계하는
-              <br />
-              백엔드 개발자 <strong>김나현</strong>입니다.
-            </p>
+              with a product mindset and a focus on user experience.
+            </div>
             <p className={styles.introMyself}>
-              이 블로그에는 프로젝트와 개발하면서 배운 것들을 담고 있습니다.
+            This blog is where I share my projects, ideas, and things I've learned along the way.
             </p>
           </div>
         </section>
