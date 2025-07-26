@@ -1,0 +1,84 @@
+---
+title: "DTO Boolean 필드 JSON 직렬화 이슈"
+description: "boolean 필드 직렬화 시 예상치 못한 필드가 함께 출력되는 문제를 해결한 방법을 정리합니다."
+date: "2025.05.22"
+filter: ["Spring"]
+---
+
+#### boolean 필드 직렬화 시 isMine, mine 두 개가 생기는 문제 발생
+
+<br />
+Spring에서 DTO에 boolean 필드를 아래처럼 정의했을 때:
+
+<br />
+
+```java
+@Schema(description = "댓글 작성자 여부", example = "true")
+@JsonProperty("isMine")
+private boolean isMine;
+```
+
+<br />
+
+- @JsonProperty("isMine")를 붙이지 않으면 기본적으로 mine이라는 필드명이 출력됨.
+- 붙이더라도 아래처럼 isMine과 mine이 동시에 출력되는 문제가 발생했다:
+
+```json
+{
+    "id": 1,
+    "content": "이 게시글 진짜 좋네요! 😄",
+    "nickname": "이브니쨩",
+    "profileImage": "my_profile_url",
+    "liveAloneDate": "2024-11-14",
+    "createdAt": "2025-05-21T08:11:12.015526",
+    "isMine": true,
+    "mine": true
+},
+```
+---
+
+#### 원인 분석
+- 원인을 알아보니 getter가 있어서 getMine()을 생성해서 mine 필드도 생긴 것
+- Jackson은 isMine() → isMine, getMine() → mine 으로 **둘 다 직렬화함**    
+
+<aside>
+  💡 **직렬화(Serialization)란?**    
+    - Java 객체를 → JSON, XML 등의 문자열 형식으로 바꾸는 과정
+    - 즉, 필드들을 응답 형태로 변환해서 클라이언트에 전달하는 것으로 이해할 수 있다.
+</aside>
+
+<ThinShortLine />
+
+#### 해결 방법
+
+- getMine()을 무시하도록 @JsonIgnore를 붙이면 해결 
+- DTO 아래에 코드 추가
+
+```java
+@JsonIgnore
+public boolean getMine() {
+    return isMine;
+}
+```
+
+- 이후 직렬화 결과는 아래처럼 정상 출력됨.
+
+```json
+{
+    "id": 1,
+    "content": "이 게시글 진짜 좋네요! 😄",
+    "nickname": "이브니쨩",
+    "profileImage": "my_profile_url",
+    "liveAloneDate": "2024-11-14",
+    "createdAt": "2025-05-21T08:11:12.015526",
+    "isMine": true
+},
+```
+
+---
+
+#### 정리
+- boolean 필드 직렬화 시 is000, get000가 모두 적용되므로 의도치 않은 중복 필드가 생길 수 있다.
+- DTO에서 특정 필드명으로 출력하고 싶다면 @JsonProperty와 함께 getter를 명시적으로 무시해주는 처리가 필요하다.
+- 혹은 처음부터 isMine 말고 mine으로 필드를 작성하고 @JsonProperty("isMine")을 사용하면 중복되지 않고 isMine으로만 출력 된다고 하니 이 방법도 좋겠다.
+- 아니면 처음부터 owned 같은 필드명 사용해서 boolean도 어색하지 않게 사용할 수 있도록 하는 것도 괜찮아 보인다.
