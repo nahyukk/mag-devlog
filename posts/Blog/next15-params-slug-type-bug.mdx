@@ -1,0 +1,115 @@
+---
+title: "Next.js 15에서 App Router의 params.slug 타입 오류 해결하기"
+description: "Next.js 15에서 App Router의 동적 라우트(params.slug)에서 발생하는 타입 추론 오류를 해결하는 방법을 정리합니다."
+date: "2025.07.22"
+filter: ["Next.js"]
+---
+
+### 문제 상황
+
+```tsx
+export default async function Page({ params }: { params: { slug: string } }) {
+  const post = await getPost(params.slug);
+}
+```
+
+- npm 빌드시 아래와 같은 에러가 발생
+
+```tsx
+Type '{ params: { slug: string; }; }' is not assignable to type 'PageProps'.
+  Types of property 'params' are incompatible.
+    Type '{ slug: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally...
+```
+
+### 원인
+
+- Next.js App Router가 내부적으로 params를 **비동기적으로 resolve**할 수도 있다는 구조 때문에 발생
+- params가 Promise 타입으로 추론되는 경우 TypeScript가 타입 에러를 냄
+- 특히 **Vercel 빌드 환경에서 자주 터짐**
+
+---
+
+### 해결
+
+##### 1. gpt로 쉽게 해결해보려 했으나 실패
+<ThinShortLine />
+##### 2. 구글링으로 글을 찾기 시작
+
+<aside>
+  🔍 
+  <code>
+    Type {'{ slug: string; }'} is missing the following properties from type 'Promise&lt;any&gt;': then, catch, finally, [Symbol.toStringTag]
+  </code>
+</aside>
+
+
+
+<img src="https://lh3.googleusercontent.com/d/1gtE0BNzFPxKFcCahrbCZi4-pE-lGnfeu" width="70%" />
+**🔗** https://github.com/vercel/next.js/issues/77609
+
+- 좋은 댓글 발견
+- 공식 문서도 읽어봤으나.. 아직 그것으로 해결 불가한 역량ㅠㅠ
+    
+**🔗 참고 |** https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes
+    
+<ThinShortLine />
+
+##### 3. 아예 빌드 에러로 검색
+
+<aside>
+  🔍
+  <code>
+    Type error: Type 'PageProps' does not satisfy the constraint
+    'import("/Users/내 이름/Desktop/mag-devlog/.next/types/app/projects/[slug]/page").PageProps'.<br />
+    Types of property 'params' are incompatible.<br />
+    Type 'Params' is missing the following properties from type 'Promise&lt;any&gt;':
+    then, catch, finally, [Symbol.toStringTag]
+  </code>
+</aside>
+
+<img src="https://lh3.googleusercontent.com/d/1RIBgZ6Pwx81a8QtfL6ofK1SHz4Em0R9L" width="70%" />
+**🔗** https://github.com/vercel/next.js/discussions/71997
+- 아주 좋은 글 등장 
+
+<ThinShortLine />
+
+#### 👉 **params를 Promise처럼 타입 지정하고 await으로 푸는 방식**으로 해결
+
+```tsx
+interface PageProps {
+  **params: Promise<{ slug: string }>;**
+}
+
+export const generateStaticParams = async (): Promise<{ slug: string }[]> => {
+  const slugs = getAllProjectsSlugs();
+  return slugs.map((slug) => ({ slug }));
+};
+
+export default async function BlogPost({ params }: PageProps) {
+  const { slug } = await params;
+  const post = await getProjectPost(slug);
+```
+
+- 공식 문서 기준이 아님
+- 특히 Vercel 환경에서 PageProps의 params를 Promise로 잘못 추론되어 생기는 문제
+    - `params: { slug: string }` - 정상 상태(동기 객체)
+    - `params: Promise<{ slug: string }>` - 버그(비동기 객체)
+- Next는 params를 비동기로 주지 않는데.. 비동기로 잘못 추론되니 그냥 Promise로 타입 지정해서 해결..
+- 버그인 것 같으니 Next 버전 제대로 올라가면 수정되기를 바람
+
+<br />
+```tsx
+export const getAllBlogSlugs = () => {
+  const postDir = path.join(process.cwd(), "posts", "Blog");
+  const files = fs.readdirSync(postDir);
+
+  return files
+    .filter((file) => file.endsWith(".mdx"))
+    .map((file) => file.replace(".mdx", ""));
+};
+```
+
+- 추가적으로 이 함수에서 async를 없앴는데 원래 불필요 하던 것이라 한다.
+- readdirSync → 동기 → async 필요 x
+- fs.promises.readdir → 비동기 → async 필요
+- async 안 없애면 위에 해결한 방법에서 map 속성이 없다는 에러 + await 잊었냐는 에러가 남
