@@ -5,18 +5,40 @@ import Post from "../../components/Post";
 import getBlogPost from "../../../lib/getBlogPost";
 import { getAllBlogSlugs } from "../../../lib/getAllBlogSlugs";
 
-export const metadata = {
-  title: "Blog | Mag's Devlog",
-};
-
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
 export const generateStaticParams = async (): Promise<{ slug: string }[]> => {
   const slugs = getAllBlogSlugs();
   return slugs.map((slug) => ({ slug }));
 };
+
+export async function generateMetadata({ params }) {
+  const post = await getBlogPost(params.slug);
+
+  if (!post) {
+    return {
+      title: "게시글을 찾을 수 없습니다",
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      url: `https://mag-devlog.vercel.app/blog/${params.slug}`,
+      images: [
+        {
+          url: post.ogImage || "https://mag-devlog.vercel.app/default-og.png",
+        },
+      ],
+    },
+  };
+}
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;

@@ -3,6 +3,7 @@ export interface Post {
   title: string;
   description: string;
   date: string;
+  ogImage?: string;
 }
 
 export interface PostWithFilter extends Post {

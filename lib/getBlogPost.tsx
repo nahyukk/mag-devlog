@@ -8,6 +8,7 @@ interface BlogPost {
   date: string;
   order: number;
   content: string;
+  ogImage: string;
 }
 
 const getBlogPost = async (slug: string): Promise<BlogPost | null> => {
@@ -26,6 +27,7 @@ const getBlogPost = async (slug: string): Promise<BlogPost | null> => {
     date: data.date,
     order: typeof data.order === "number" ? data.order : 0,
     content,
+    ogImage: data.ogImage,
   };
 };
 
