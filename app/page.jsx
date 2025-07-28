@@ -3,8 +3,7 @@ import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import BlogList from "./components/Blog/BlogList";
-import ProjectList from "./components/Project/ProjectList";
-import Link from "next/link";
+import RandomProject from "./components/RandomProject";
 
 export const metadata = {
   title: "Home | Mag's Devlog",
@@ -69,7 +68,6 @@ export default async function Home() {
     .slice(0, 3);
 
   const projects = await getProjectPosts();
-  const randomProjects = projects.sort(() => 0.5 - Math.random()).slice(0, 2);
 
   return (
     <main className={styles.mainBody}>
@@ -94,7 +92,7 @@ export default async function Home() {
         </section>
         <section>
           <h2 className={styles.randomPh2}>Random Projects</h2>
-          <ProjectList posts={randomProjects} />
+          <RandomProject projects={projects} />
         </section>
       </section>
     </main>
