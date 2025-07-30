@@ -1,0 +1,265 @@
+---
+title: "Next.js 기반 블로그의 SEO 최적화를 해보자"
+description: "Next.js App Router 기반 프로젝트에서 동적 메타데이터 구성부터 sitemap, robots.txt 설정, Search Console 등록까지 SEO 최적화 과정을 정리합니다
+"
+date: "2025.07.28"
+filter: ["Next.js"]
+---
+
+<blockquote>
+ 페이지 추가 시 SEO 자동 반영되게 설정했다.    
+ (build 시 자동 반영인데, main에 머지 되면 vercel이 자동 빌드하고, 배포까지 자동으로 되기 때문에 머지만 잘 해주면 별도의 행동이 필요하지는 않다.)
+    - next-sitemap postbuild 스크립트
+    - Next.js의 정적 라우팅 시스템
+</blockquote>
+
+<br />
+### 할일 목록
+##### 기본 SEO 세팅
+
+- [x] title, description, robots 메타태그 설정   
+- [x] Open Graph(og) 메타태그 추가 (공유시 og image만 추가)
+- [x] `<html lang="ko">` 언어 설정   
+- [x] ~~favicon 추가 (/public/favicon.ico)~~ - 이전에 해놓음  
+- [x] 페이지마다 Head 내용 다르게 구성   
+
+<ThinShortLine />
+
+##### 검색 엔진 대응 (검색 노출용)
+
+- [x] robots.txt 생성 (/public/robots.txt)
+- [x] sitemap.xml 자동 생성 (next-sitemap)
+- [x] Google Search Console 등록 및 사이트맵 제출
+
+---
+
+#### 메타 데이터 설정
+
+```tsx
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ko">
+      <head>
+        <title>Mag's Devlog</title>
+        <meta name="description" content="개발 기록과 배운 내용을 정리한 블로그입니다." />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="utf-8" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
+      ...
+```
+
+- head 추가 next/head의 Head 태그를 사용해도 되지만
+    - Next.js 13 이후 app router에서는 `<head>` 직접 사용하는 걸 허용
+<br />
+- 페이지마다 동적 title 필요 ❌ → 지금처럼 `<head>` 직접 써도 OK
+- 페이지마다 동적 title 필요 ⭕ → generateMetadata() 방식으로 전환 고려
+
+
+<ThinShortLine />
+
+##### 각 페이지 마다 동적 타이틀 설정
+
+og 이미지 만들기
+
+- 이미지 png로 만들어서 public 폴더에 넣으면 된다.
+types/blog.ts에 ogImage 추가
+
+```tsx
+export interface Post {
+  slug: string;
+  title: string;
+  description: string;
+  date: string;
+  **ogImage?: string;**
+}
+```
+<br />
+lib/getBlogPost.tsx에도 ogImage 추가
+
+```tsx
+interface BlogPost {
+  title: string;
+  description: string;
+  date: string;
+  order: number;
+  content: string;
+  **ogImage: string;**
+}
+
+const getBlogPost = async (slug: string): Promise<BlogPost | null> => {
+  const postPath = path.join(process.cwd(), "posts", "Blog", `${slug}.mdx`);
+
+  if (!fs.existsSync(postPath)) {
+    return null;
+  }
+
+  const fileContent = fs.readFileSync(postPath, "utf-8");
+  const { content, data } = matter(fileContent);
+
+  return {
+    title: data.title,
+    description: data.description,
+    date: data.date,
+    order: typeof data.order === "number" ? data.order : 0,
+    content,
+    **ogImage: data.ogImage,**
+  };
+};
+```
+
+- 만약 포스트에 ogImage를 넣고 싶다면 mdx 메타데이터에 넣어주면 된다. 없으면 만들어둔 default-og.png가 들어간다.
+<ThinShortLine />
+
+**slug page**
+- 정적 메타 데이터제거
+- 대신 `generateMetadata()` 함수 도입
+    
+    → 각 글의 제목과 설명으로 SEO 메타 동적 생성
+    
+
+```tsx
+export async function generateMetadata({ params }) {
+  const post = await getBlogPost(params.slug);
+
+  if (!post) {
+    return {
+      title: "게시글을 찾을 수 없습니다",
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      url: `https://mag-devlog.vercel.app/blog/${params.slug}`,
+      images: [
+        {
+          url: post.ogImage || "https://mag-devlog.vercel.app/default-og.png",
+        },
+      ],
+    },
+  };
+}
+```
+
+---
+
+#### sitemap + robot.txt
+- 패키지 설치
+    
+    ```tsx
+    npm install next-sitemap
+    ```
+    
+- **설정 파일 추가 (루트에 생성)**
+    - next-sitemap.config.js
+    
+    ```tsx
+    /** @type {import('next-sitemap').IConfig} */
+    module.exports = {
+      siteUrl: "https://your-domain.com", // ← 실제 도메인으로 변경
+      generateRobotsTxt: true,
+      sitemapSize: 5000,
+    };
+    ```
+    
+- **package.json에 스크립트 추가**
+    
+    ```tsx
+    "scripts": {
+      "build": "next build",
+      **"postbuild": "next-sitemap"**
+    }
+    ```
+    
+
+빌드
+
+```tsx
+npm run build
+```
+
+- 파일 자동 생성
+    - public/sitemap.xml
+    - public/robots.txt
+
+<br />
+
+<a href="https://drive.google.com/file/d/1UCwHwD_I655FbNfaiHvSUij9kXBmdpCX/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1UCwHwD_I655FbNfaiHvSUij9kXBmdpCX" width="100%" />
+</a>
+<br />
+<ThinShortLine />
+
+**Sitemap 확인**
+<br />
+<a href="https://drive.google.com/file/d/1LoefJrs-HsPZYzquF3ABkT7uIvkcUdAC/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1LoefJrs-HsPZYzquF3ABkT7uIvkcUdAC" width="100%" />
+</a>
+
+- 빌드할 때마다 모든 페이지의 `<lastmod>`가 최신으로 바뀐다.
+- 정확하다고 볼 수는 없지만.. 문제가 없어서 일단 넘어간다.
+
+<aside>
+🔍 **완벽하게 하려면?**
+    - generateMetadata()나 getBlogPost()에서
+    → 실제 mdx의 date나 updated 필드를 `<lastmod>`로 넘겨주도록 `transform()` 함수 커스터마이징 해야한다.
+</aside>
+<br />
+- build 때 마다 업데이트 되므로 git에는 올리지 않기 위해 gitignore에 추가해줬다.
+    
+    ```bash
+    # For SEO
+    /public/sitemap*.xml
+    /public/robots.txt
+    ```
+    
+<ThinShortLine />
+
+**Google Search Console 등록 + sitemap 제출**
+
+👉 https://search.google.com/search-console
+<br />
+<a href="https://drive.google.com/file/d/1b85hQ3SiGWqwh_eKDI7M34EUQVXy_wQP/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1b85hQ3SiGWqwh_eKDI7M34EUQVXy_wQP" width="80%" />
+</a>
+<br />
+<a href="https://drive.google.com/file/d/1Hh2h0p1tQ7SrEO-lo1M1r56N19ImLi7_/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1Hh2h0p1tQ7SrEO-lo1M1r56N19ImLi7_" width="60%" />
+</a>
+<br />
+<a href="https://drive.google.com/file/d/1HgJNwjTDe0PYLxQMG_4tsYHrbE5k5ilg/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1HgJNwjTDe0PYLxQMG_4tsYHrbE5k5ilg" width="100%" />
+</a>
+<br />
+<ThinShortLine />
+배포 → 서치 콘솔 확인!
+
+<a href="https://drive.google.com/file/d/1tHDSzExaTA7JjHyEV-6bsg4OZI_UudFG/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1tHDSzExaTA7JjHyEV-6bsg4OZI_UudFG" width="100%" />
+</a>
+<br />
+<ThinShortLine />
+
+**sitemap 제출**
+<br />
+<a href="https://drive.google.com/file/d/1aBaCja0yJOB8__o9zPZeBFjwzng9raIM/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1aBaCja0yJOB8__o9zPZeBFjwzng9raIM" width="100%" />
+</a>
+
+- 처음에 상태가 가져올 수 없음 이었는데 새로고침 해주니 성공으로 바뀌었다.
+<a href="https://drive.google.com/file/d/1QeEFTAWw1ohnTuyhLUPZTZrKOqVOIqDl/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1QeEFTAWw1ohnTuyhLUPZTZrKOqVOIqDl" width="100%" />
+</a>
+<br />
+→ 검색은 2-3일 정도 걸릴 수 있다고 한다. 이후 다시 체크 필요!!
