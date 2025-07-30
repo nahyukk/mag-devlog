@@ -109,7 +109,7 @@ const getBlogPost = async (slug: string): Promise<BlogPost | null> => {
     date: data.date,
     order: typeof data.order === "number" ? data.order : 0,
     content,
-    **ogImage: data.ogImage,**
+    ogImage: data.ogImage,
   };
 };
 ```
@@ -178,7 +178,7 @@ export async function generateMetadata({ params }) {
     ```tsx
     "scripts": {
       "build": "next build",
-      **"postbuild": "next-sitemap"**
+      "postbuild": "next-sitemap"
     }
     ```
     
