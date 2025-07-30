@@ -1,0 +1,112 @@
+---
+title: "DCO(Developer Certificate of Origin)란? 설정 방법과 이름 변경까지"
+description: "Git 프로젝트에 DCO 서명을 적용하고, commit에 서명하는 방법과 사용자 이름/이메일 설정까지 정리합니다."
+date: "2025.07.27"
+filter: ["Git"]
+---
+
+Spring AI 문서를 보다가 SNAPSHOT이 계속 있길래.. 정식 출시 이후에도 왜 안 바뀌지 하다가 눈에 들어온 부분. 
+<a href="https://drive.google.com/file/d/1KL3eL4ILofu-N2MpAVfOvJwR2kmRVoO3/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1KL3eL4ILofu-N2MpAVfOvJwR2kmRVoO3" width="20%" />
+</a>
+<br />
+
+리팩토링할 때 문서 없어서 조금 헤맸는데.. 다른 Issue나 PR 찾아도 없길래 내가 수정이나 해보자 하고 갑자기 오픈소스 (docs 수정하는 가짜) contributing 시도..
+
+---
+
+<aside>
+  💡 **DCO**     
+      - 소프트웨어 개발자가 자신의 기여물이 정당한 원저작자로부터 왔으며, 해당 기여물을 프로젝트의 라이선스에 따라 배포할 권리가 있음을 동의하는 진술서
+</aside>
+
+컨트리뷰팅 해보려는데 DCO라는 것이 필요하다고 한다. 
+- 커밋 메시지에 "Signed-off-by" 문구를 추가해서 DCO에 동의를 하고 기여를 인증하는 것
+- 여기서는 깃허브 이름과 메일이 들어간다.
+
+<br />
+<a href="https://drive.google.com/file/d/1FYh8qBkzavKAS0rXAaq6D7kZqORYdZdc/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1FYh8qBkzavKAS0rXAaq6D7kZqORYdZdc" width="100%" />
+</a>
+
+참고: [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring#how-to-use-developer-certificate-of-origin)
+
+---
+#### DCO 서명 적용하기
+방법은 간단한데 커밋할 때 아래와 같이 하면 됨.
+
+```coq
+git commit -s -m “메시지 메시지”
+```
+<br />
+<a href="https://drive.google.com/file/d/1FTtJsidX5FaRONggInPGI571XhFnea2b/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1FTtJsidX5FaRONggInPGI571XhFnea2b" width="100%" />
+</a>
+<br />
+근데 문제는 여기서 발생했다. 깃허브 이름을 귀엽게 작성해놨는데 조금 부끄러워서 그냥 본명을 쓰려고 프로필을 수정했지만 반영되지 않았다. 
+(사실 아직 PR 날리기 전이었고 지우고 다시 클론 받아서 했는데도 변하지 않았다. 시간이 필요한가…? 로컬에서도 설정이 필요한지..) 
+이미 벌어진 일이니 수정하는 것으로 마음 먹었다.
+
+---
+
+#### DOC 이름 변경하기
+
+이름 수정
+
+```coq
+git config user.name "내 이름"
+```
+<br />
+이름 덮어쓰기
+
+```coq
+git commit --amend --reset-author -s
+```
+<br />
+<a href="https://drive.google.com/file/d/185Q_hYXgVpBsdGlF3d9MgdRmGoind8mp/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/185Q_hYXgVpBsdGlF3d9MgdRmGoind8mp" width="100%" />
+</a>
+
+- 주의 할 점은 이름 덮어쓰기를 하게 되면 Signed-off-by 는 하나 더 생기게 된다. 이 부분은 직접 에디터로 들어가서 지워줘야 함.
+
+```coq
+git commit --amend
+```
+
+- vi 에디터라서 insert해서 지우고 :wq 해서 저장하고 나오면 됨.
+    - 가끔 저장 안되고 에러 나기도 하는데 그냥 다시 들어가서 수정하고 저장하면 됨.
+- 여기서 Commit 한 사람 이름도 수정 가능함.
+<br />
+- 아래 코드로 확인
+
+```coq
+git log -1 --pretty=full
+```
+<br />
+<a href="https://drive.google.com/file/d/1PdoRU_6pPzGRb-mk0hgweylyykFUZE3y/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1PdoRU_6pPzGRb-mk0hgweylyykFUZE3y" width="100%" />
+</a>
+<br />
+굳굳!! 잘 수정이 되었다고 생각하고 즐겁게 PR도 작성해서 날려버렸다. 
+
+근데 새벽이라 그런가.. 정신 차리고 보니… 이름이… `nahyuk`?? 뭐 장난스럽게 자주 쓰는 이름이기는 하지만 첫 컨트리뷰팅에… 본명을 쓰고 싶었는데… 망연자실!! 했지만 수정이 가능하다!
+
+위에서 한 작업을 다시 반복하고, 물론 제대로 된 이름으로!!!
+<br />
+```coq
+git push --force
+```
+<br />
+- 강제 푸시 해버리면 된다. 물론 푸시 전에 확인 하는 것 잊지 않기!!
+<a href="https://drive.google.com/file/d/1H7npkC7HZVZ7vBghN8_RkjB1ZsBroluR/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1H7npkC7HZVZ7vBghN8_RkjB1ZsBroluR" width="100%" />
+</a>
+<br />
+<a href="https://drive.google.com/file/d/16YWQ8kXYUEQOTZWkGP5iGZnzeS0ugaT_/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/16YWQ8kXYUEQOTZWkGP5iGZnzeS0ugaT_" width="70%" />
+</a>
+<br />
+<a href="https://drive.google.com/file/d/1ngq6t3eoLdHUgPOiADGAjTdqODoarHoq/view?usp=drive_link" target="_blank">
+  <img src="https://lh3.googleusercontent.com/d/1ngq6t3eoLdHUgPOiADGAjTdqODoarHoq" width="30%" />
+</a>
+- 아름다운 PR에 오점(?)이 하나 남긴 한데.. 어쩔 수 없다. 이름은 소중하니까~
