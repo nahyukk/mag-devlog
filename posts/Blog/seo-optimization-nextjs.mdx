@@ -77,7 +77,7 @@ export interface Post {
   title: string;
   description: string;
   date: string;
-  **ogImage?: string;**
+  ogImage?: string;
 }
 ```
 <br />
@@ -90,7 +90,7 @@ interface BlogPost {
   date: string;
   order: number;
   content: string;
-  **ogImage: string;**
+  ogImage: string;
 }
 
 const getBlogPost = async (slug: string): Promise<BlogPost | null> => {
