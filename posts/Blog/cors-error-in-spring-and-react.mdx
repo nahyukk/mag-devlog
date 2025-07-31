@@ -1,0 +1,120 @@
+---
+title: "CORS 에러를 해결하자! (Spring + React)"
+description: "다른 포트에서 요청할 때 발생하는 CORS 에러를 Spring Boot와 Spring Security 환경에서 해결한 과정 정리"
+date: "2025.03.27"
+filter: ["Spring", "React"]
+---
+
+<aside>
+  💁🏻‍♀️ **CORS (Cross-Origin Resource Sharing) 에러**
+  - 다른 출처(origin)의 프론트엔드와 백엔드가 통신할 때 브라우저가 보안을 위해 막는 현상
+    - 프론트엔드: http://localhost:3000 | 백엔드: http://localhost:8080 포트가 다르므로 출처가 다르다고 간주
+    - 백엔드에서 CORS 허용 설정이 필요함
+</aside>
+
+---
+
+#### 문제 상황
+1. 프론트엔드에서 `GET /products` 호출 시 CORS 에러 발생
+2. WebMvcConfigurer로 해결되었지만, 이후 `POST /cart`, `POST /orders/create` 요청 시 다시 CORS 에러가 발생
+3. 이후 preflight request CORS에러가 다시 발생
+<div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+  <a href="https://drive.google.com/file/d/15bczaKxm0sJ5qak2-pZhZExBZ9Y_b1Lo/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+    <img src="/projects/images/evenly/evenly-cors.png" alt="Evenly-CORS" alt="Even-ide 스케줄러 변경" style={{ padding: "15px", justifyItems: "center", width: "60%" }} />
+  </a>
+  <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>CORS에러 해결 요청</small>
+</div>
+
+<br />
+
+---
+
+#### 원인 분석
+- Spring Security 필터를 통과하지 않는 API는 `WebMvcConfigurer`에서의 CORS 설정으로 동작
+- 하지만, 보안 필터를 거치는 API는 `Spring Security`의 `SecurityFilterChain`에서 별도 CORS 설정이 필요
+- preflight 요청(`OPTIONS`)이 누락될 경우도 CORS 오류 발생
+    <blockquote> preflight : 노크 하는 역할 같은 것. 저 들어 가도 되나요? </blockquote>
+
+---
+
+#### 접근 및 해결
+  ```java
+  @Configuration
+  public class WebConfig implements WebMvcConfigurer {
+
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+          registry.addMapping("/**")
+                  .allowedOrigins("http://localhost:3000")
+                  .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                  .allowedHeaders("*")
+                  .allowCredentials(true); // 쿠키 허용
+      }
+  }
+  ```
+- WebMvcConfigurer에 기본 CORS 설정 추가
+- 처음에 `OPTIONS`를 넣지 않았는데 그럴 경우 preflight 부분이 CORS 에러가 발생
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1_-6vmpBE8TGEIDGRL81bC4aGYpYgX3jB/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-webconfig-cors.png" alt="Evenly-webconfig-cors" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>WebMvcConfigurer</small>
+  </div>
+ 
+- 필터체인에 CORS 허용하는 코드 추가
+```java
+@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable()) // JWT 사용으로 필요 없음
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/", "/css/**", "/products/**").permitAll()// 홈화면(상품 목록), 상품 상세, 등 추가 필요
+                        .requestMatchers("/admin/**" ).permitAll()
+                        .requestMatchers("/auth/login", "/auth/signup").permitAll() // 로그인, 회원가입 인증 없이
+                        .anyRequest().authenticated() // 그외 모든 요청은 인증 필요
+                )
+                
+                ...
+
+@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("PATCH");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedMethod("OPTIONS");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+}
+```
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1foCShKon0Z_BlTwSrYHby5t0BKxzQHUM/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-security-cors.png" alt="Evenly-security-cors" alt="Even-ide Redis 저장" style={{ padding: "15px", justifyItems: "center", width: "70%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>Security CorsConfig</small>
+  </div>
+- WebMvcConfigurer와 SecurityFilterChain에 CORS 설정 중복 정의 가능
+  
+---
+
+#### <code style={{ color: "red" }}>'cors()' is deprecated since version 6.1 and marked for removal</code> 에러에 대하여…
+cors() 메서드는 Spring Security 6.1 버전에서 deprecated 되었고, 제거될 예정이라는 경고
+- Spring Security에서 CORS 설정을 새로운 방식으로 변경해야 한다.
+  - 기존 `.cors().configurationSource(corsConfigurationSource())`
+  - 수정 `.cors(cors -> cors.configurationSource(corsConfigurationSource()))`
+  <div style={{ display: "flex", flexDirection: "Column", alignItems: "center" }}>
+    <a href="https://drive.google.com/file/d/1beH2xyYM5nMNgkiYAeh7Na5EyrGEVyrM/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+      <img src="/projects/images/evenly/evenly-6.1.png" alt="Evenly-6.1-warning" style={{ padding: "15px", justifyItems: "center", width: "100%" }} />
+    </a>
+    <small style={{ color: "var(--sub-text-color)", justifyItems: "center" }}>람다 기반 DSL로 수정 후 코드</small>
+  </div>
