@@ -36,7 +36,7 @@ const getProjectPosts = async (): Promise<Project[]> => {
       const [startDate, endDate] = data.date
         .split(" ~ ")
         .map((date) => new Date(date));
-      latestDate = endDate;
+      latestDate = startDate;
     } else {
       latestDate = new Date(data.date);
     }
