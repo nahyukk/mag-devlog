@@ -1,0 +1,97 @@
+---
+title: "Sumday"
+description: "하루 정해진 시간 몰입할 수 있도록 집중 트리거이자 타임 트래커입니다."
+date: "2025-08-19 ~ 2025-09-19"
+role: "Frontend"
+skills: "Typescript based React, CSS3"
+imageUrl: "https://lh3.googleusercontent.com/d/1rnha-72VYnVqKtfwrTYbgq7iO0Bw8mDQ"
+filter: ["🧸Toy"]
+---
+
+⏱️ **개인 집중 트리거 &  타임 트래커** — 미니멀한 React + TypeScript 기반 앱  
+
+---
+
+### 🚀 주요 기능
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://drive.google.com/file/d/1qsqSliYxalUXk2jy_SzALlxBFx_GSTgV/view?usp=drive_link" target="_blank">
+          <img src="https://lh3.googleusercontent.com/d/1qsqSliYxalUXk2jy_SzALlxBFx_GSTgV" width="100%" />
+        </a>
+        <small>타이머</small>
+      </td>
+      <td>
+        <a href="https://drive.google.com/file/d/1cSfI2REaDqzTu6bt3c8tnrjO8rD9zp3a/view?usp=drive_link" target="_blank">
+          <img src="https://lh3.googleusercontent.com/d/1cSfI2REaDqzTu6bt3c8tnrjO8rD9zp3a" width="100%" />
+        </a>
+        <small>실행 중</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br />
+
+##### Focus Trigger
+- **출근 버튼**으로 하루의 집중 시작  
+- **외출/재개**: 일시정지 / 이전 기록에서 이어서 진행  
+- **퇴근 처리**로 하루 집중을 마무리
+- **8시간 달성 시 자동 퇴근 전환**  
+- **퇴근 후 재입장**: 자정 전까지 8시간 이상 상태 유지  
+<ThinShortLine />
+
+##### Midnight Reset
+- 매일 **00:00 기준 자동 초기화**  
+- 당일 집중 시간 기록 후 **히스토리에 저장**  
+- 자정 시 타이머 동작 중이면 **자동 퇴근 처리**  
+- 새로운 하루를 위한 **클린 슬레이트 제공**
+<ThinShortLine />
+
+##### Notifications
+- **자정 5분 전 경고 알림** (타이머 실행 중일 때만)  
+- **비프음** 및 닫을 수 있는 배너 알림  
+<ThinShortLine />
+
+##### Data Management
+- **Local Storage**에 모든 데이터 저장 (서버 사용 x)  
+- **7일치 기록 자동 관리**  
+- **최근 집중 세션 시간 표시**  
+- **브라우저 재시작·슬립 후에도 상태 복원**
+
+---
+
+#### 🛠 기술 스택
+- **React 18 + TypeScript**
+- **Vite** (개발 및 빌드 환경)
+- **CSS3** (backdrop filter 등 최신 스타일 활용)
+
+---
+
+#### 🔑 주요 컴포넌트
+- `App.tsx` : 메인 타이머 로직 & 상태 관리  
+- `TimeDisplay.tsx` : 집중 시간 및 최근 세션 표시  
+- `PrimaryButton.tsx` : 동적 버튼 (출근/외출/재개/퇴근)  
+- `MidnightBanner.tsx` : 자정 경고 배너  
+- `PauseModal.tsx` : 외출 상태 표시 모달  
+
+---
+
+#### 📂 상태 관리
+React Hooks + LocalStorage를 활용해 상태를 영구적으로 저장  
+- `focusedMs`: 오늘의 누적 집중 시간  
+- `sinceStartMs`: 업무 시작 이후 경과 시간(휴식 포함)  
+- `state`: 현재 타이머 상태 (`idle` | `running` | `paused`)  
+- `history`: 최근 7일간 집중 시간 기록  
+
+---
+
+#### 🔮 향후 계획
+- **집중 시간 설정 기능**: 8시간 고정이 아닌 맞춤형 목표 시간 지원  
+- **시간 통계 제공**: 주간 집중 시간 시각화 기능  
+
+---
+
+**🔗 GitHub |** [sumday](https://github.com/nahyukk/sumday)    
+
+**🔗 배포 링크 |** [sumday](https://sumdaytimer.vercel.app/)
