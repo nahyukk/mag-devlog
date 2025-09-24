@@ -77,7 +77,7 @@ export default async function Home() {
             <h1>Mag's Devlog</h1>
             <div className={styles.introMyself}>
               <p className={styles.introMyself}>Hi there! 🙌 </p>   
-              I’m <strong>Nahyun Kim</strong> — a backend developer
+              I’m <strong>Nahyun Kim</strong> — a backend/fullstack developer
               <br />
               with a product mindset and a focus on user experience.
             </div>
