@@ -32,7 +32,7 @@ const getProjectPosts = async (): Promise<Project[]> => {
 
     let latestDate;
 
-    if (data.date.includes(" ~ ")) {
+    if (data.date && data.date.includes(" ~ ")) {
       const [startDate, endDate] = data.date
         .split(" ~ ")
         .map((date) => new Date(date));
