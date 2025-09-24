@@ -61,11 +61,17 @@ const getProjectPosts = async (): Promise<Project[]> => {
 export default async function Projects() {
   const posts = await getProjectPosts();
   const filters = [
-    "All",
-    ...[...new Set(posts.flatMap((post) => post.filter))].sort((a, b) =>
-      a.localeCompare(b)
-    ),
-  ];
+  "All",
+  ...[...new Set(posts.flatMap((post) => post.filter))].sort((a, b) => {
+    // 글자 수 우선
+    if (a.length !== b.length) {
+      return a.length - b.length;
+    }
+
+    // 같은 길이면 알파벳 순
+    return a.localeCompare(b);
+  }),
+];
 
   return (
     <main className={styles.mainBody}>
