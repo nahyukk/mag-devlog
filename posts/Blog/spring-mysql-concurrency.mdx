@@ -1,0 +1,112 @@
+---
+title: "Spring Boot + MySQL 조회수 증가 API 동시성 문제"
+description: "드디어 동시성 문제(근데 엄청 단순한..)를 마주쳤다. 씩씩하게 해결해보자."
+date: "2025.09.23"
+filter: ["Spring", "React"]
+---
+
+<aside>
+  🎤 공연 관련된 웹을 구현하는 도중, 조회수를 확인하고자 조회수 증가 API를 만들었고, 프론트에서 때리자 마자 에러가 났다. 
+</aside>
+
+---
+### 문제 상황
+- 공연 조회수 증가 api를 불렀을 때 나타난 에러
+
+    ```bash
+    Caused by: org.hibernate.exception.LockAcquisitionException: could not execute statement [Deadlock found when trying to get lock; try restarting transaction] [/* insert for 
+      com.서비스 이름.analytics.entity.ConcertView */insert into concert_views (concert_id,updated_at,view_count) values (?,?,?)]
+    ```
+
+- 첫번째 요청은 잘 들어갔었고, 2번째 요청이 문제였다.
+- 다른 클릭 문제는 괜찮았는데 이건 랜더링 후가 아니라 클릭을 했을 때 api를 호출했기 때문이다.
+
+
+<ThinShortLine />
+
+→ `LockAcquisitionException` : 동시성 문제
+
+- 같은 concert_id에 대해 여러 요청이 동시에 들어와서 **Race Condition으로 인한 PK 충돌**이 발생
+- 클라이언트에서 페이지 로딩되면 api가 호출되도록 했음
+- React strict mode는 개발환경에서 2번 랜더링 되므로.. api가 동시에 2번 요청되고 이것 때문에 PK 충돌이 발생해서 에러가 났다.
+
+<br />
+
+##### 정리 해보자면 update → insert
+    - 두 요청이 동시에 들어오면:
+        1. A 트랜잭션: findByConcertId → 없음 확인
+        2. B 트랜잭션: findByConcertId → 없음 확인
+        3. 둘 다 INSERT 실행 → **PK 충돌 발생**
+
+---
+
+### 해결
+
+- **해결책 1** `Upsert 방식`
+    
+    ```java
+    @Modifying
+    @Query(value = "INSERT INTO concert_views (concert_id, view_count, updated_at) " +
+    "VALUES (:concertId, 1, NOW()) " +
+    "ON DUPLICATE KEY UPDATE view_count = view_count + 1, updated_at = NOW()",
+    nativeQuery = true)
+    void upsertViewCount(@Param("concertId") String concertId);
+    ```
+    
+    - concert_id가 **없으면**: 새 레코드 INSERT (조회수 1로 시작)
+    - concert_id가 **이미 있으면**: view_count를 1 증가시키고 updated_at 갱신
+
+<br />
+
+- **해결책 2** `락 사용`
+    
+    ```java
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<ConcertView> findByConcertIdForUpdate(String concertId);
+    ```
+    - 락을 사용하면 동시성은 해결되지만, 성능 저하가 크므로 pass.
+
+        <aside>
+          **트랜잭션 락**
+
+            - 동시에 같은 데이터를 건드리지 못하게 잠궈 정합성을 보장하는 것
+            - 다만, 락을 남발하면 → 성능 저하 / 데드락 위험
+            - 그래서 간단한 카운트 증가는 락 대신 Upsert 같은 원자 연산으로 처리하는 게 더 낫다
+        </aside>
+
+<br />
+<ShortLine />
+
+#### 1번으로 선택해서 해결
+    - MySQL의 INSERT ... ON DUPLICATE KEY UPDATE 구문을 사용한 `atomic upsert 방식`으로 변경
+      - upsertViewCount(), upsertClickCount() 메서드 추가
+      - 기존의 update → insert 로직 제거하여 race condition(어떤 코드나 쿼리의 실행 순서에 따라 결과가 달라지는 것) 방지
+    
+    <br />
+**실제 동작 로그**
+
+    ```SQL
+      /* dynamic native SQL query */ 
+      INSERT INTO concert_views (concert_id, view_count, updated_at) 
+      VALUES (?, 1, NOW()) 
+      ON DUPLICATE KEY UPDATE view_count = view_count + 1, updated_at = NOW()
+    ```
+- 동시성 문제도 해결되었고,
+- 호출도 잘 된다.
+
+---
+
+#### 왜 이 방법을 쓰는 거죠?
+
+- 트랜잭션 락(PESSIMISTIC_WRITE) 안 걸어도 됨 → 성능↑
+- MySQL이 내부적으로 PK 충돌을 감지하고 Update로 처리 → 동시성 문제 ↓
+- 코드도 간단해짐 (별도 조회 후 Update 로직 불필요)
+
+---
+
+### 배운 점
+
+- 단순한 조회수 증가 같은 기능도 동시성 문제가 쉽게 터질 수 있다.  
+- React Strict Mode 때문에 개발 환경에서 의도치 않게 API가 2번 호출되면서 race condition이 더 잘 드러났다. (다행이다)
+- DB 레벨에서 원자적 연산(Upsert)으로 처리하는 게 조회 후 insert/update 방식보다 훨씬 안전하고 단순하다.  
+- 동시성 문제라고 다 데드락은 아니다. 이번 케이스는 race condition + PK 충돌이었고, 이를 구분해서 이해해야 한다.  
